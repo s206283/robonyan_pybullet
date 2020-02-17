@@ -1,0 +1,2995 @@
+<sdf version='1.6'>
+  <world name='default'>
+  <model name='robonyan'>
+    <link name='body'>
+      <pose frame=''>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose frame=''>-0.24155 0 0.4911 0 -0 0</pose>
+        <mass>0</mass>
+        <inertia>
+          <ixx>0.05</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.06</iyy>
+          <iyz>0</iyz>
+          <izz>0.03</izz>
+        </inertia>
+      </inertial>
+      <collision name='body_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>/meshes_3/body.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='body_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/body.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <link name='L_link_1'>
+      <pose frame=''>0.092 0.192 0.95 0 -0 0.785398</pose>
+      <inertial>
+        <pose frame=''>0.108 0 0 0 -0 0</pose>
+        <mass>4</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.09</iyy>
+          <iyz>0</iyz>
+          <izz>0.02</izz>
+        </inertia>
+      </inertial>
+      <collision name='L_link_1_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/LArmSL.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='L_link_1_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/LArmSL.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>0.5 0.7 1.0 1.0</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <emissive>0 0 0 0</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='J0' type='revolute'>
+      <child>L_link_1</child>
+      <parent>body</parent>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>-2.70526</lower>
+          <upper>2.70526</upper>
+          <effort>300</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='L_link_2'>
+      <pose frame=''>0.205 0.305 0.95 0 -0 0</pose>
+      <inertial>
+        <pose frame=''>0.09 0.09 0 0 -0 0</pose>
+        <mass>4</mass>
+        <inertia>
+          <ixx>0.05</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.018</iyy>
+          <iyz>0</iyz>
+          <izz>0.044</izz>
+        </inertia>
+      </inertial>
+      <collision name='L_link_2_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/LPlate.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='L_link_2_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/LPlate.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.2 1</diffuse>
+          <specular>0 0 0 0</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='J1' type='revolute'>
+      <child>L_link_2</child>
+      <parent>L_link_1</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1.39626</lower>
+          <upper>1.48353</upper>
+          <effort>300</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='L_link_3'>
+      <pose frame=''>0.389 0.489 0.95 0 0 0</pose>
+      <inertial>
+        <pose frame=''>0.018 0.004 0 0 -0 0</pose>
+        <mass>3</mass>
+        <inertia>
+          <ixx>0.08</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.075</iyy>
+          <iyz>0</iyz>
+          <izz>0.01</izz>
+        </inertia>
+      </inertial>
+      <collision name='L_link_3_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/LArmU.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='L_link_3_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/LArmU.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>0.5 0.7 1.0 1.0</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <emissive>0 0 0 0</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='J2' type='revolute'>
+      <child>L_link_3</child>
+      <parent>L_link_2</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-2.96706</lower>
+          <upper>0.872665</upper>
+          <effort>300</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='L_link_4'>
+      <pose frame=''>0.481 0.439 0.95 0 0 -0.785398</pose>
+      <inertial>
+        <pose frame=''>0.08 0.005 0 0 -0 0</pose>
+        <mass>3</mass>
+        <inertia>
+          <ixx>0.08</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.075</iyy>
+          <iyz>0</iyz>
+          <izz>0.01</izz>
+        </inertia>
+      </inertial>
+      <collision name='L_link_4_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/LArmR.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='L_link_4_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/LArmR.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.2 1</diffuse>
+          <specular>0 0 0 0</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='J3' type='revolute'>
+      <child>L_link_4</child>
+      <parent>L_link_3</parent>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>-2.87979</lower>
+          <upper>2.87979</upper>
+          <effort>300</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='L_link_5'>
+      <pose frame=''>0.601 0.319 0.95 0 0 0</pose>
+      <inertial>
+        <pose frame=''>-0.009 0.009 0 0 -0 0</pose>
+        <mass>3</mass>
+        <inertia>
+          <ixx>0.08</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.075</iyy>
+          <iyz>0</iyz>
+          <izz>0.01</izz>
+        </inertia>
+      </inertial>
+      <collision name='L_link_5_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/LArmB.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='L_link_5_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/LArmB.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>0.5 0.7 1.0 1.0</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <emissive>0 0 0 0</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='J4' type='revolute'>
+      <child>L_link_5</child>
+      <parent>L_link_4</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-2.00713</lower>
+          <upper>2.00713</upper>
+          <effort>300</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='L_wrist'>
+      <pose frame=''>0.633 0.287 0.95 0 0 -0.785398</pose>
+      <inertial>
+        <pose frame=''>0.08 0.001 -0.0025 0 -0 0</pose>
+        <mass>1.8</mass>
+        <inertia>
+          <ixx>0.08</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.075</iyy>
+          <iyz>0</iyz>
+          <izz>0.01</izz>
+        </inertia>
+      </inertial>
+      <collision name='L_wrist_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/hand_base_test.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='L_wrist_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/hand_base_test.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='J5' type='revolute'>
+      <child>L_wrist</child>
+      <parent>L_link_5</parent>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>-3.05433</lower>
+          <upper>3.05433</upper>
+          <effort>300</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name='L_finger_11'>
+      <pose frame=''>0.71599666 0.17907783 0.939636 0 0 -0.785398</pose>
+      <inertial>
+        <pose frame=''>0.007 0 0 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='L_finger_11_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger4_test_b.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='L_finger_11_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger4_test_b.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='L_finger_joint11' type='fixed'>
+      <child>L_finger_11</child>
+      <parent>L_wrist</parent>
+    </joint>
+
+    <link name='L_finger_12'>
+      <pose frame=''>0.72501227 0.17006221 0.939636 0 0 -0.785398</pose>
+      <inertial>
+        <pose frame=''>0.011 0 -0.0005 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='L_finger_12_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger4_test_a.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='L_finger_12_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger4_test_a.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='L_finger_joint12' type='revolute'>
+      <child>L_finger_12</child>
+      <parent>L_finger_11</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-2.00713</lower>
+          <upper>2.00713</upper>
+          <effort>100</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name='L_finger_13'>
+      <pose frame=''>0.74056862 0.15450585 0.936636 0 0 -0.785398</pose>
+      <inertial>
+        <pose frame=''>0.0145 0 0.003 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='L_finger_13_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger3_test.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='L_finger_13_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger3_test.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='L_finger_joint13' type='revolute'>
+      <child>L_finger_13</child>
+      <parent>L_finger_12</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-2.00713</lower>
+          <upper>2.00713</upper>
+          <effort>100</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name='L_finger_14'>
+      <pose frame=''>0.76107474 0.13399976 0.936636 0 0 -0.785398</pose>
+      <inertial>
+        <pose frame=''>0.015 0 0.002 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='L_finger_14_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger2_test.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='L_finger_14_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger2_test.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='L_finger_joint14' type='revolute'>
+      <child>L_finger_14</child>
+      <parent>L_finger_13</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-2.00713</lower>
+          <upper>2.00713</upper>
+          <effort>100</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name='L1_GP2Y0E03'>
+      <pose frame=''>0.77132776 0.12374671 0.939386 0 0 -0.785398</pose>
+      <inertial>
+        <pose frame=''>-0.00009 -0.00001 -0.0018 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='L1_GP2Y0E03_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/GP2Y0E03_test.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='L1_GP2Y0E03_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/GP2Y0E03_test.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>0.2 0.2 0.2 1.0</diffuse>
+          <specular>0.4 0.4 0.4 1</specular>
+          <emissive>0 0 0 0</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='L1_GP2Y0E03_joint' type='fixed'>
+      <child>L1_GP2Y0E03</child>
+      <parent>L_finger_14</parent>
+    </joint>
+
+    <link name='L_finger_15'>
+      <pose frame=''>0.78158882 0.11349367 0.936636 0 0 -0.785398</pose>
+      <inertial>
+        <pose frame=''>0.016 0 0.003 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='L_finger_15_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger1_test.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='L_finger_15_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger1_test.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='L_finger_joint15' type='revolute'>
+      <child>L_finger_15</child>
+      <parent>L_finger_14</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-2.00713</lower>
+          <upper>2.00713</upper>
+          <effort>100</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name='L1_FSR-402'>
+      <pose frame=''>0.79819782 0.09687665 0.934011 0 0 -0.785398</pose>
+      <inertial>
+        <pose frame=''>0 0 -0.00002 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='L1_FSR-402_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/FSR-402_test.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='L1_FSR-402_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/FSR-402_test.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>0.2 0.2 0.2 1.0</diffuse>
+          <specular>0.4 0.4 0.4 1</specular>
+          <emissive>0 0 0 0</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='L1_FSR-402_joint' type='fixed'>
+      <child>L1_FSR-402</child>
+      <parent>L_finger_15</parent>
+    </joint>
+
+    <link name='L_finger_21'>
+      <pose frame=''>0.74092217 0.20400334 0.939636 0 0 -0.785398</pose>
+      <inertial>
+        <pose frame=''>0.007 0 0 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='L_finger_21_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger4_test_b.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='L_finger_21_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger4_test_b.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='L_finger_joint21' type='fixed'>
+      <child>L_finger_21</child>
+      <parent>L_wrist</parent>
+    </joint>
+
+    <link name='L_finger_22'>
+      <pose frame=''>0.74993779 0.19498773 0.939636 0 0 -0.785398</pose>
+      <inertial>
+        <pose frame=''>0.011 0 -0.0005 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='L_finger_22_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger4_test_a.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='L_finger_22_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger4_test_a.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='L_finger_joint22' type='revolute'>
+      <child>L_finger_22</child>
+      <parent>L_finger_21</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-2.00713</lower>
+          <upper>2.00713</upper>
+          <effort>100</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name='L_finger_23'>
+      <pose frame=''>0.76549415 0.17943138 0.936636 0 0 -0.785398</pose>
+      <inertial>
+        <pose frame=''>0.0145 0 0.003 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='L_finger_23_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger3_test.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='L_finger_23_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger3_test.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='L_finger_joint23' type='revolute'>
+      <child>L_finger_23</child>
+      <parent>L_finger_22</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-2.00713</lower>
+          <upper>2.00713</upper>
+          <effort>100</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name='L_finger_24'>
+      <pose frame=''>0.78600024 0.15892526 0.936636 0 0 -0.785398</pose>
+      <inertial>
+        <pose frame=''>0.015 0 0.002 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='L_finger_24_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger2_test.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='L_finger_24_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger2_test.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='L_finger_joint24' type='revolute'>
+      <child>L_finger_24</child>
+      <parent>L_finger_23</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-2.00713</lower>
+          <upper>2.00713</upper>
+          <effort>100</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name='L2_GP2Y0E03'>
+      <pose frame=''>0.79625329 0.14867224 0.939386 0 0 -0.785398</pose>
+      <inertial>
+        <pose frame=''>-0.00009 -0.00001 -0.0018 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='L2_GP2Y0E03_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/GP2Y0E03_test.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='L2_GP2Y0E03_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/GP2Y0E03_test.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>0.2 0.2 0.2 1.0</diffuse>
+          <specular>0.4 0.4 0.4 1</specular>
+          <emissive>0 0 0 0</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='L2_GP2Y0E03_joint' type='fixed'>
+      <child>L2_GP2Y0E03</child>
+      <parent>L_finger_24</parent>
+    </joint>
+
+    <link name='L_finger_25'>
+      <pose frame=''>0.80650633 0.13841918 0.936636 0 0 -0.785398</pose>
+      <inertial>
+        <pose frame=''>0.016 0 0.003 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='L_finger_25_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger1_test.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='L_finger_25_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger1_test.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='L_finger_joint25' type='revolute'>
+      <child>L_finger_25</child>
+      <parent>L_finger_24</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-2.00713</lower>
+          <upper>2.00713</upper>
+          <effort>100</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name='L2_FSR-402'>
+      <pose frame=''>0.82312335 0.12180218 0.934011 0 0 -0.785398</pose>
+      <inertial>
+        <pose frame=''>0 0 -0.00002 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='L2_FSR-402_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/FSR-402_test.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='L2_FSR-402_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/FSR-402_test.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>0.2 0.2 0.2 1.0</diffuse>
+          <specular>0.4 0.4 0.4 1</specular>
+          <emissive>0 0 0 0</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='L2_FSR-402_joint' type='fixed'>
+      <child>L2_FSR-402</child>
+      <parent>L_finger_25</parent>
+    </joint>
+
+    <link name='L_finger_31'>
+      <pose frame=''>0.71450396 0.20549604 0.920249 0 1.5708 2.35619</pose>
+      <inertial>
+        <pose frame=''>0.007 0 0 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='L_finger_31_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger4_test_b.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='L_finger_31_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger4_test_b.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='L_finger_joint31' type='fixed'>
+      <child>L_finger_31</child>
+      <parent>L_wrist</parent>
+    </joint>
+
+    <link name='L_finger_32'>
+      <pose frame=''>0.71450396 0.20549604 0.907499 0 1.5708 2.35619</pose>
+      <inertial>
+        <pose frame=''>0.011 0 -0.0005 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='L_finger_32_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger4_test_a.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='L_finger_32_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger4_test_a.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='L_finger_joint32' type='revolute'>
+      <child>L_finger_32</child>
+      <parent>L_finger_31</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-2.00713</lower>
+          <upper>2.00713</upper>
+          <effort>100</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name='L_finger_33'>
+      <pose frame=''>0.71662528 0.20337472 0.885499 0 1.5708 2.35619</pose>
+      <inertial>
+        <pose frame=''>0.0145 0 0.003 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='L_finger_33_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger3_test.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='L_finger_33_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger3_test.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='L_finger_joint33' type='revolute'>
+      <child>L_finger_33</child>
+      <parent>L_finger_32</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-2.00713</lower>
+          <upper>2.00713</upper>
+          <effort>100</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name='L_finger_34'>
+      <pose frame=''>0.71662528 0.20337472 0.856499 0 1.5708 2.35619</pose>
+      <inertial>
+        <pose frame=''>0.015 0 0.002 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='L_finger_34_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger2_test.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='L_finger_34_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger2_test.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='L_finger_joint34' type='revolute'>
+      <child>L_finger_34</child>
+      <parent>L_finger_33</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-2.00713</lower>
+          <upper>2.00713</upper>
+          <effort>100</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name='L3_GP2Y0E03'>
+      <pose frame=''>0.71468074 0.20531926 0.841999 0 1.5708 2.35619</pose>
+      <inertial>
+        <pose frame=''>-0.00009 -0.00001 -0.0018 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='L3_GP2Y0E03_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/GP2Y0E03_test.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='L3_GP2Y0E03_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/GP2Y0E03_test.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>0.2 0.2 0.2 1.0</diffuse>
+          <specular>0.4 0.4 0.4 1</specular>
+          <emissive>0 0 0 0</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='L3_GP2Y0E03_joint' type='fixed'>
+      <child>L3_GP2Y0E03</child>
+      <parent>L_finger_34</parent>
+    </joint>
+
+    <link name='L_finger_35'>
+      <pose frame=''>0.71662528 0.20337472 0.82749899 0 1.5708 2.35619</pose>
+      <inertial>
+        <pose frame=''>0.016 0 0.003 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='L_finger_35_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger1_test.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='L_finger_35_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger1_test.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='L_finger_joint35' type='revolute'>
+      <child>L_finger_35</child>
+      <parent>L_finger_34</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-2.00713</lower>
+          <upper>2.00713</upper>
+          <effort>100</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name='L3_FSR-402'>
+      <pose frame=''>0.71848144 0.20151856 0.80399899 0 1.5708 2.35619</pose>
+      <inertial>
+        <pose frame=''>0 0 -0.00002 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='L3_FSR-402_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/FSR-402_test.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='L3_FSR-402_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/FSR-402_test.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>0.2 0.2 0.2 1.0</diffuse>
+          <specular>0.4 0.4 0.4 1</specular>
+          <emissive>0 0 0 0</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='L3_FSR-402_joint' type='fixed'>
+      <child>L3_FSR-402</child>
+      <parent>L_finger_35</parent>
+    </joint>
+
+    <link name='R_link_1'>
+      <pose frame=''>0.092 -0.192 0.95 0 -0 -0.785398</pose>
+      <inertial>
+        <pose frame=''>0.108 0 0 0 -0 0</pose>
+        <mass>4</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.09</iyy>
+          <iyz>0</iyz>
+          <izz>0.02</izz>
+        </inertia>
+      </inertial>
+      <collision name='R_link_1_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/RArmSL.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='R_link_1_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/RArmSL.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>0.5 0.7 1.0 1.0</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <emissive>0 0 0 0</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='J6' type='revolute'>
+      <child>R_link_1</child>
+      <parent>body</parent>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>-2.70526</lower>
+          <upper>2.70526</upper>
+          <effort>300</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='R_link_2'>
+      <pose frame=''>0.205 -0.305 0.95 0 -0 0</pose>
+      <inertial>
+        <pose frame=''>0.09 -0.09 0 0 -0 0</pose>
+        <mass>4</mass>
+        <inertia>
+          <ixx>0.05</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.018</iyy>
+          <iyz>0</iyz>
+          <izz>0.044</izz>
+        </inertia>
+      </inertial>
+      <collision name='R_link_2_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/RPlate.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='R_link_2_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/RPlate.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.2 1</diffuse>
+          <specular>0 0 0 0</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='J7' type='revolute'>
+      <child>R_link_2</child>
+      <parent>R_link_1</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1.39626</lower>
+          <upper>1.48353</upper>
+          <effort>300</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='R_link_3'>
+      <pose frame=''>0.389 -0.489 0.95 0 0 0</pose>
+      <inertial>
+        <pose frame=''>0.018 -0.004 0 0 -0 0</pose>
+        <mass>3</mass>
+        <inertia>
+          <ixx>0.08</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.075</iyy>
+          <iyz>0</iyz>
+          <izz>0.01</izz>
+        </inertia>
+      </inertial>
+      <collision name='R_link_3_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/RArmU.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='R_link_3_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/RArmU.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>0.5 0.7 1.0 1.0</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <emissive>0 0 0 0</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='J8' type='revolute'>
+      <child>R_link_3</child>
+      <parent>R_link_2</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-2.96706</lower>
+          <upper>0.872665</upper>
+          <effort>300</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='R_link_4'>
+      <pose frame=''>0.481 -0.439 0.95 0 0 0.785398</pose>
+      <inertial>
+        <pose frame=''>0.08 -0.005 0 0 -0 0</pose>
+        <mass>3</mass>
+        <inertia>
+          <ixx>0.08</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.075</iyy>
+          <iyz>0</iyz>
+          <izz>0.01</izz>
+        </inertia>
+      </inertial>
+      <collision name='R_link_4_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/RArmR.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='R_link_4_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/RArmR.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.2 1</diffuse>
+          <specular>0 0 0 0</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='J9' type='revolute'>
+      <child>R_link_4</child>
+      <parent>R_link_3</parent>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>-2.87979</lower>
+          <upper>2.87979</upper>
+          <effort>300</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='R_link_5'>
+      <pose frame=''>0.601 -0.319 0.95 0 0 0</pose>
+      <inertial>
+        <pose frame=''>-0.009 -0.009 0 0 -0 0</pose>
+        <mass>3</mass>
+        <inertia>
+          <ixx>0.08</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.075</iyy>
+          <iyz>0</iyz>
+          <izz>0.01</izz>
+        </inertia>
+      </inertial>
+      <collision name='R_link_5_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/RArmB.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='R_link_5_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/RArmB.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>0.5 0.7 1.0 1.0</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <emissive>0 0 0 0</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='J10' type='revolute'>
+      <child>R_link_5</child>
+      <parent>R_link_4</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-2.00713</lower>
+          <upper>2.00713</upper>
+          <effort>300</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name='R_wrist'>
+      <pose frame=''>0.633 -0.287 0.95 0 0 0.785398</pose>
+      <inertial>
+        <pose frame=''>0.08 0.001 -0.0025 0 -0 0</pose>
+        <mass>1.8</mass>
+        <inertia>
+          <ixx>0.08</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.075</iyy>
+          <iyz>0</iyz>
+          <izz>0.01</izz>
+        </inertia>
+      </inertial>
+      <collision name='R_wrist_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/hand_base_test.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='R_wrist_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/hand_base_test.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='J11' type='revolute'>
+      <child>R_wrist</child>
+      <parent>R_link_5</parent>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>-3.05433</lower>
+          <upper>3.05433</upper>
+          <effort>300</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name='R_finger_11'>
+      <pose frame=''>0.71599666 -0.17907783 0.939636 0 0 0.785398</pose>
+      <inertial>
+        <pose frame=''>0.007 0 0 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='R_finger_11_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger4_test_b.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='R_finger_11_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger4_test_b.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='R_finger_joint11' type='fixed'>
+      <child>R_finger_11</child>
+      <parent>R_wrist</parent>
+    </joint>
+
+    <link name='R_finger_12'>
+      <pose frame=''>0.72501227 -0.17006221 0.939638 0 0 0.785398</pose>
+      <inertial>
+        <pose frame=''>0.011 0 -0.0005 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='R_finger_12_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger4_test_a.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='R_finger_12_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger4_test_a.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='R_finger_joint12' type='revolute'>
+      <child>R_finger_12</child>
+      <parent>R_finger_11</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-2.00713</lower>
+          <upper>2.00713</upper>
+          <effort>100</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name='R_finger_13'>
+      <pose frame=''>0.74056862 -0.15450585 0.936636 0 0 0.785398</pose>
+      <inertial>
+        <pose frame=''>0.0145 0 0.003 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='R_finger_13_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger3_test.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='R_finger_13_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger3_test.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='R_finger_joint13' type='revolute'>
+      <child>R_finger_13</child>
+      <parent>R_finger_12</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-2.00713</lower>
+          <upper>2.00713</upper>
+          <effort>100</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name='R_finger_14'>
+      <pose frame=''>0.76107474 -0.13399976 0.936636 0 0 0.785398</pose>
+      <inertial>
+        <pose frame=''>0.015 0 0.002 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='R_finger_14_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger2_test.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='R_finger_14_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger2_test.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='R_finger_joint14' type='revolute'>
+      <child>R_finger_14</child>
+      <parent>R_finger_13</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-2.00713</lower>
+          <upper>2.00713</upper>
+          <effort>100</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name='R1_GP2Y0E03'>
+      <pose frame=''>0.77132776 -0.12374671 0.939386 0 0 0.785398</pose>
+      <inertial>
+        <pose frame=''>-0.00009 -0.00001 -0.0018 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='R1_GP2Y0E03_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/GP2Y0E03_test.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='R1_GP2Y0E03_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/GP2Y0E03_test.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>0.2 0.2 0.2 1.0</diffuse>
+          <specular>0.4 0.4 0.4 1</specular>
+          <emissive>0 0 0 0</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='R1_GP2Y0E03_joint' type='fixed'>
+      <child>R1_GP2Y0E03</child>
+      <parent>R_finger_14</parent>
+    </joint>
+
+    <link name='R_finger_15'>
+      <pose frame=''>0.78158882 -0.11349367 0.936636 0 0 0.785398</pose>
+      <inertial>
+        <pose frame=''>0.016 0 0.003 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='R_finger_15_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger1_test.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='R_finger_15_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger1_test.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='R_finger_joint15' type='revolute'>
+      <child>R_finger_15</child>
+      <parent>R_finger_14</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-2.00713</lower>
+          <upper>2.00713</upper>
+          <effort>100</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name='R1_FSR-402'>
+      <pose frame=''>0.79819782 -0.09687665 0.934011 0 0 0.785398</pose>
+      <inertial>
+        <pose frame=''>0 0 -0.00002 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='R1_FSR-402_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/FSR-402_test.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='R1_FSR-402_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/FSR-402_test.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>0.2 0.2 0.2 1.0</diffuse>
+          <specular>0.4 0.4 0.4 1</specular>
+          <emissive>0 0 0 0</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='R1_FSR-402_joint' type='fixed'>
+      <child>R1_FSR-402</child>
+      <parent>R_finger_15</parent>
+    </joint>
+
+    <link name='R_finger_21'>
+      <pose frame=''>0.74092217 -0.20400334 0.939636 0 0 0.785398</pose>
+      <inertial>
+        <pose frame=''>0.007 0 0 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='R_finger_21_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger4_test_b.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='R_finger_21_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger4_test_b.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='R_finger_joint21' type='fixed'>
+      <child>R_finger_21</child>
+      <parent>R_wrist</parent>
+    </joint>
+
+    <link name='R_finger_22'>
+      <pose frame=''>0.74993779 -0.19498773 0.939636 0 0 0.785398</pose>
+      <inertial>
+        <pose frame=''>0.011 0 -0.0005 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='R_finger_22_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger4_test_a.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='R_finger_22_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger4_test_a.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='R_finger_joint22' type='revolute'>
+      <child>R_finger_22</child>
+      <parent>R_finger_21</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-2.00713</lower>
+          <upper>2.00713</upper>
+          <effort>100</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name='R_finger_23'>
+      <pose frame=''>0.76549415 -0.17943138 0.936636 0 0 0.785398</pose>
+      <inertial>
+        <pose frame=''>0.0145 0 0.003 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='R_finger_23_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger3_test.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='R_finger_23_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger3_test.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='R_finger_joint23' type='revolute'>
+      <child>R_finger_23</child>
+      <parent>R_finger_22</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-2.00713</lower>
+          <upper>2.00713</upper>
+          <effort>100</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name='R_finger_24'>
+      <pose frame=''>0.78600024 -0.15892526 0.936636 0 0 0.785398</pose>
+      <inertial>
+        <pose frame=''>0.015 0 0.002 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='R_finger_24_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger2_test.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='R_finger_24_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger2_test.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='R_finger_joint24' type='revolute'>
+      <child>R_finger_24</child>
+      <parent>R_finger_23</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-2.00713</lower>
+          <upper>2.00713</upper>
+          <effort>100</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name='R2_GP2Y0E03'>
+      <pose frame=''>0.79625329 -0.14867224 0.939386 0 0 0.785398</pose>
+      <inertial>
+        <pose frame=''>-0.00009 -0.00001 -0.0018 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='R2_GP2Y0E03_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/GP2Y0E03_test.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='R2_GP2Y0E03_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/GP2Y0E03_test.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>0.2 0.2 0.2 1.0</diffuse>
+          <specular>0.4 0.4 0.4 1</specular>
+          <emissive>0 0 0 0</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='R2_GP2Y0E03_joint' type='fixed'>
+      <child>R2_GP2Y0E03</child>
+      <parent>R_finger_24</parent>
+    </joint>
+
+    <link name='R_finger_25'>
+      <pose frame=''>0.80650633 -0.13841918 0.936636 0 0 0.785398</pose>
+      <inertial>
+        <pose frame=''>0.016 0 0.003 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='R_finger_25_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger1_test.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='R_finger_25_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger1_test.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='R_finger_joint25' type='revolute'>
+      <child>R_finger_25</child>
+      <parent>R_finger_24</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-2.00713</lower>
+          <upper>2.00713</upper>
+          <effort>100</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name='R2_FSR-402'>
+      <pose frame=''>0.82312335 -0.12180218 0.934011 0 0 0.785398</pose>
+      <inertial>
+        <pose frame=''>0 0 -0.00002 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='R2_FSR-402_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/FSR-402_test.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='R2_FSR-402_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/FSR-402_test.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>0.2 0.2 0.2 1.0</diffuse>
+          <specular>0.4 0.4 0.4 1</specular>
+          <emissive>0 0 0 0</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='R2_FSR-402_joint' type='fixed'>
+      <child>R2_FSR-402</child>
+      <parent>R_finger_25</parent>
+    </joint>
+
+    <link name='R_finger_31'>
+      <pose frame=''>0.71450396 -0.20549604 0.920249 0 1.5708 -2.35619</pose>
+      <inertial>
+        <pose frame=''>0.007 0 0 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='R_finger_31_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger4_test_b.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='R_finger_31_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger4_test_b.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='R_finger_joint31' type='fixed'>
+      <child>R_finger_31</child>
+      <parent>R_wrist</parent>
+    </joint>
+
+    <link name='R_finger_32'>
+      <pose frame=''>0.71450396 -0.20549604 0.907499 0 1.5708 -2.35619</pose>
+      <inertial>
+        <pose frame=''>0.011 0 -0.0005 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='R_finger_32_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger4_test_a.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='R_finger_32_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger4_test_a.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='R_finger_joint32' type='revolute'>
+      <child>R_finger_32</child>
+      <parent>R_finger_31</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-2.00713</lower>
+          <upper>2.00713</upper>
+          <effort>100</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name='R_finger_33'>
+      <pose frame=''>0.71662528 -0.20337472 0.885499 0 1.5708 -2.35619</pose>
+      <inertial>
+        <pose frame=''>0.0145 0 0.003 0 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='R_finger_33_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger3_test.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='R_finger_33_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger3_test.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='R_finger_joint33' type='revolute'>
+      <child>R_finger_33</child>
+      <parent>R_finger_32</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-2.00713</lower>
+          <upper>2.00713</upper>
+          <effort>100</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name='R_finger_34'>
+      <pose frame=''>0.71662528 -0.20337472 0.856499 0 1.5708 -2.35619</pose>
+      <inertial>
+        <pose frame=''>0.015 0 0.002 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='R_finger_34_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger2_test.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='R_finger_34_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger2_test.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='R_finger_joint34' type='revolute'>
+      <child>R_finger_34</child>
+      <parent>R_finger_33</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-2.00713</lower>
+          <upper>2.00713</upper>
+          <effort>100</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name='R3_GP2Y0E03'>
+      <pose frame=''>0.71468074 -0.20531926 0.841999 0 1.5708 -2.35619</pose>
+      <inertial>
+        <pose frame=''>-0.00009 -0.00001 -0.0018 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='R3_GP2Y0E03_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/GP2Y0E03_test.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='R3_GP2Y0E03_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/GP2Y0E03_test.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>0.2 0.2 0.2 1.0</diffuse>
+          <specular>0.4 0.4 0.4 1</specular>
+          <emissive>0 0 0 0</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='R3_GP2Y0E03_joint' type='fixed'>
+      <child>R3_GP2Y0E03</child>
+      <parent>R_finger_34</parent>
+    </joint>
+
+    <link name='R_finger_35'>
+      <pose frame=''>0.71662528 -0.20337472 0.82749899 0 1.5708 -2.35619</pose>
+      <inertial>
+        <pose frame=''>0.016 0 0.003 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='R_finger_35_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger1_test.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='R_finger_35_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/finger1_test.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0.764706 0.305882 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='R_finger_joint35' type='revolute'>
+      <child>R_finger_35</child>
+      <parent>R_finger_34</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-2.00713</lower>
+          <upper>2.00713</upper>
+          <effort>100</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name='R3_FSR-402'>
+      <pose frame=''>0.71848144 -0.20151856 0.80399899 0 1.5708 -2.35619</pose>
+      <inertial>
+        <pose frame=''>0 0 -0.00002 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <collision name='R3_FSR-402_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/FSR-402_test.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='R3_FSR-402_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/FSR-402_test.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>0.2 0.2 0.2 1.0</diffuse>
+          <specular>0.4 0.4 0.4 1</specular>
+          <emissive>0 0 0 0</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='R3_FSR-402_joint' type='fixed'>
+      <child>R3_FSR-402</child>
+      <parent>R_finger_35</parent>
+    </joint>
+
+    <link name='kinectv2'>
+      <pose frame=''>-0.112 0 1.304 0 0.785398 0</pose>
+      <inertial>
+        <pose frame=''>-0.006 -0.002 0.126 0 -0 0</pose>
+        <mass>3</mass>
+        <inertia>
+          <ixx>0.08</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.075</iyy>
+          <iyz>0</iyz>
+          <izz>0.01</izz>
+        </inertia>
+      </inertial>
+      <collision name='kinectv2_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/kinectv2.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='kinectv2_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes_3/kinectv2.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>0.2 0.2 0.2 1.0</diffuse>
+          <specular>0.4 0.4 0.4 1</specular>
+          <emissive>0 0 0 0</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='link_0_JOINT_12' type='fixed'>
+      <parent>body</parent>
+      <child>kinectv2</child>
+    </joint>
+  </model>
+</world>
+</sdf>
