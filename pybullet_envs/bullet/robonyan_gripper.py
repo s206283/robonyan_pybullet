@@ -17,6 +17,38 @@ import numpy as np
 import pybullet_data
 from pkg_resources import parse_version
 
+def rotate_x(x):
+    r = np.float32(x)
+    c = np.cos(r)
+    s = np.sin(r)
+    # 回転行列Rx
+    Rx = np.matrix([[1,0,0],
+        [0,c,-s],
+        [0,s,c]])
+
+    return Rx
+
+def rotate_y(y):
+    r = np.float32(y)
+    c = np.cos(r)
+    s = np.sin(r)
+    # 回転行列Ry
+    Ry = np.matrix([[c,0,s],
+        [0,1,0],
+        [-s,0,c]])
+
+    return Ry
+
+def rotate_z(z):
+    r = np.float32(z)
+    c = np.cos(r)
+    s = np.sin(r)
+    # 回転行列Rx
+    Rz = np.matrix([[c,-s,0],
+        [s,c,0],
+        [0,0,1]])
+
+    return Rz
 
 
 datapath = pybullet_data.getDataPath()
@@ -48,7 +80,7 @@ robonyanUid = robonyan[0]
 p.resetBasePositionAndOrientation(robonyanUid, [-0.100000, 0.000000, 0.30000],
                                   [0.000000, 0.000000, 0.000000, 1.000000])
 
-kinect = p.getLinkState(robonyanUid, 54)
+kinect = p.getLinkState(robonyanUid, 56)
 print(kinect)
 
 numJoints = p.getNumJoints(robonyanUid)
@@ -69,20 +101,21 @@ for i in range(numJoints):
   jointInfo = p.getJointInfo(robonyanUid, i)
   print(jointInfo)
 
-proximity_L1 = 10
-proximity_L2 = 17
-proximity_L3 = 24
-proximity_R1 = 37
-proximity_R2 = 44
-proximity_R3 = 51
+proximity_L1 = 11
+proximity_L2 = 18
+proximity_L3 = 25
+proximity_R1 = 39
+proximity_R2 = 46
+proximity_R3 = 53
 proximity_list = np.array([proximity_L1, proximity_L2, proximity_L3, proximity_R1, proximity_R2, proximity_R3])
 
-force_L1 = 12
-force_L2 = 19
-force_L3 = 26
-force_R1 = 39
-force_R2 = 46
-force_R3 = 53
+force_L1 = 13
+force_L2 = 20
+force_L3 = 27
+force_R1 = 41
+force_R2 = 48
+force_R3 = 55
+
 
 replaceLines=True
 numRays=11
@@ -185,6 +218,77 @@ while (True):
     #for k in range(6):
         #print("%d:" % k, np.array(result_list)[k])
 
+    L_hand = p.getLinkState(robonyanUid, 6)
+
+    R_hand = p.getLinkState(robonyanUid, 34)
+
+
+    # L_handのカメラ座標取得
+    L_handPos,L_handOrn = L_hand[0], L_hand[1]
+    L_handEuler = p.getEulerFromQuaternion(L_handOrn)
+    L_handYaw = L_handEuler[2]*360/(2.*math.pi)-90
+
+    L_camera = np.array([0.01, 0, 0])
+    L_handOrn = list(L_handOrn)
+    # 回転行列の生成
+    Rx = rotate_x(L_handOrn[0])
+    Ry = rotate_y(L_handOrn[1])
+    Rz = rotate_z(L_handOrn[2])
+    # 回転後のベクトルを計算
+    R1 = np.dot(Ry,Rx)
+    R2 = np.dot(R1,Rz)
+    R3 = np.dot(R2,L_camera)
+    # 途中経過
+    R4 = np.dot(Rz,L_camera)
+    Ra = np.dot(Rx,Rz)
+    R5 = np.dot(Ra,L_camera)
+    # 整数型に変換
+    b = np.array(R3,dtype=np.float32)
+    L_handPos = np.array(L_handPos) + b
+    L_handPos = L_handPos.tolist()
+    L_handPos = L_handPos[0]
+    #print(R_handPos)
+    L_handPos = tuple(L_handPos)
+    #print(R_handPos)
+    R4 = np.array(R4,dtype=np.float32)
+    R5 = np.array(R5,dtype=np.float32)
+
+    L_handOrn = tuple(L_handOrn)
+
+    # R_handのカメラ座標取得
+    R_handPos,R_handOrn = R_hand[0], R_hand[1]
+    R_handEuler = p.getEulerFromQuaternion(R_handOrn)
+    R_handYaw = R_handEuler[2]*360/(2.*math.pi)-90
+
+
+    R_camera = np.array([0.01, 0, 0])
+    R_handOrn = list(R_handOrn)
+    # 回転行列の生成
+    Rx = rotate_x(R_handOrn[0])
+    Ry = rotate_y(R_handOrn[1])
+    Rz = rotate_z(R_handOrn[2])
+    # 回転後のベクトルを計算
+    R1 = np.dot(Ry,Rx)
+    R2 = np.dot(R1,Rz)
+    R3 = np.dot(R2,R_camera)
+    # 途中経過
+    R4 = np.dot(Rz,R_camera)
+    Ra = np.dot(Rx,Rz)
+    R5 = np.dot(Ra,R_camera)
+    # 整数型に変換
+    b = np.array(R3,dtype=np.float32)
+    R_handPos = np.array(R_handPos) + b
+    R_handPos = R_handPos.tolist()
+    R_handPos = R_handPos[0]
+    #print(R_handPos)
+    R_handPos = tuple(R_handPos)
+    #print(R_handPos)
+    R4 = np.array(R4,dtype=np.float32)
+    R5 = np.array(R5,dtype=np.float32)
+
+    R_handOrn = tuple(R_handOrn)
+
+    """
     kinectMat = p.getMatrixFromQuaternion(kinectOrn)
     upVector = [0,0,1]
     forwardVec = [kinectMat[0],kinectMat[3],kinectMat[6]]
@@ -196,6 +300,33 @@ while (True):
     kinectprojMat = camInfo[3]
     #p.getCameraImage(320,200,viewMatrix=viewMat,projectionMatrix=projMat, flags=p.ER_NO_SEGMENTATION_MASK, renderer=p.ER_BULLET_HARDWARE_OPENGL)
     p.getCameraImage(width,height,viewMatrix=kinectviewMat,projectionMatrix=kinectprojMat, renderer=p.ER_BULLET_HARDWARE_OPENGL)
+
+    #L_hand視点
+    L_handMat = p.getMatrixFromQuaternion(L_handOrn)
+    upVector = [0,0,1]
+    forwardVec = [L_handMat[0],L_handMat[3],L_handMat[6]]
+    #sideVec =  [camMat[1],camMat[4],camMat[7]]
+    L_handUpVec =  [L_handMat[2],L_handMat[5],L_handMat[8]]
+    L_handTarget = [L_handPos[0]+forwardVec[0]*100,L_handPos[1]+forwardVec[1]*100,L_handPos[2]+forwardVec[2]*100]
+    L_handUpTarget = [L_handPos[0]+L_handUpVec[0],L_handPos[1]+L_handUpVec[1],L_handPos[2]+L_handUpVec[2]]
+    L_handviewMat = p.computeViewMatrix(L_handPos, L_handTarget, L_handUpVec)
+    L_handprojMat = camInfo[3]
+    #p.getCameraImage(320,200,viewMatrix=viewMat,projectionMatrix=projMat, flags=p.ER_NO_SEGMENTATION_MASK, renderer=p.ER_BULLET_HARDWARE_OPENGL)
+    p.getCameraImage(width,height,viewMatrix=L_handviewMat,projectionMatrix=L_handprojMat, renderer=p.ER_BULLET_HARDWARE_OPENGL)
+    """
+
+    #R_hand視点
+    R_handMat = p.getMatrixFromQuaternion(R_handOrn)
+    upVector = [0,0,1]
+    forwardVec = [R_handMat[0],R_handMat[3],R_handMat[6]]
+    #sideVec =  [camMat[1],camMat[4],camMat[7]]
+    R_handUpVec =  [R_handMat[2],R_handMat[5],R_handMat[8]]
+    R_handTarget = [R_handPos[0]+forwardVec[0]*100,R_handPos[1]+forwardVec[1]*100,R_handPos[2]+forwardVec[2]*100]
+    R_handUpTarget = [R_handPos[0]+R_handUpVec[0],R_handPos[1]+R_handUpVec[1],R_handPos[2]+R_handUpVec[2]]
+    R_handviewMat = p.computeViewMatrix(R_handPos, R_handTarget, R_handUpVec)
+    R_handprojMat = camInfo[3]
+    #p.getCameraImage(320,200,viewMatrix=viewMat,projectionMatrix=projMat, flags=p.ER_NO_SEGMENTATION_MASK, renderer=p.ER_BULLET_HARDWARE_OPENGL)
+    p.getCameraImage(width,height,viewMatrix=R_handviewMat,projectionMatrix=R_handprojMat, renderer=p.ER_BULLET_HARDWARE_OPENGL)
 
 
 
