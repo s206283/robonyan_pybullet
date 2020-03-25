@@ -16,8 +16,8 @@ from gym.utils import seeding
 from pkg_resources import parse_version
 
 
-class Kuka:
-    metadata = {'render.modes': ['human', 'rgb_array'], 'video.frames_per_second': 50}
+class Robonyan:
+
 
     def rotate_x(x):
         r = np.float32(x)
@@ -143,6 +143,11 @@ class Kuka:
     self.endEffectorAngle = 0
     """
 
+    L_state = p.getLinkState(self.robonyanUid, self.L_EndEffectorIndex)
+    R_state = p.getLinkState(self.robonyanUid, self.R_EndEffectorIndex)
+    self.L_EndEffectorPos = L_state[0]
+    self.R_EndEffectorPos = R_state[0]
+
     # 各ジョイントのmotorNAmes, motorIndicesのリスト作成
     self.leftmotorNames = []
     self.leftmotorIndices = []
@@ -157,6 +162,21 @@ class Kuka:
         #print(jointInfo[1])
         self.leftmotorNames.append(str(jointInfo[1]))
         self.leftmotorIndices.append(i)
+
+    # 各ジョイントのmotorNAmes, motorIndicesのリスト作成
+    self.rightmotorNames = []
+    self.rightmotorIndices = []
+    # Righthandのアームジョイントは28～33
+    self.rightnumjoints = [i for i in range(28, 34)]
+
+    for i in range(self.rightnumjoints):
+      jointInfo = p.getJointInfo(self.robonyanUid, i)
+      qIndex = jointInfo[3]
+      if qIndex > -1:
+        #print("motorname")
+        #print(jointInfo[1])
+        self.rightmotorNames.append(str(jointInfo[1]))
+        self.rightmotorIndices.append(i)
 
   def getActionDimension(self):
     if (self.useInverseKinematics):
@@ -368,7 +388,7 @@ class Kuka:
                                             rayFrom[i][2]+hitFraction*(rayTo[j][2]-rayFrom[j][2])]
                 p.addUserDebugLine(rayFrom[j],localHitTo, rayHitColor,replaceItemUniqueId=rayIds_list[i][j],parentObjectUniqueId=self.robonyanUid, parentLinkIndex=self.proximity_list[i])
 
-    proximity_obsevation = np.array([proximity_list])
+    proximity_obsevation = np.array([proximity_result_list])
 
     """
     state = p.getLinkState(self.robonyanUid, self.kukaGripperIndex)
@@ -383,55 +403,96 @@ class Kuka:
 
     return observation
 
-  def applyAction(self, motorCommands):
+  def applyAction(self, actions):
 
     #print ("self.numJoints")
     #print (self.numJoints)
+    self.max_pos = 2.
+    self.max_rot = 0.1745
+
     if (self.useInverseKinematics):
 
-      dx = motorCommands[0]
-      dy = motorCommands[1]
-      dz = motorCommands[2]
+      pos_ctrl, rot_ctrl = actions[:3], actions[3:]
+      pos_ctrl = np.clip(pos_ctrl, -self.max_pos, self.max_pos)[0]
+      rot_ctrl = np.clip(rot_ctrl, -self.max_rot, self.max_rot)[0]
+      dx = pos_ctrl[0]
+      dy = pos_ctrl[1]
+      dz = pos_ctrl[2]
       #da = motorCommands[3]
-      droll = motorCommands[3]
-      dpitch = motorCommands[4]
-      dyaw = motorCommands[5]
+      #droll = rot_ctrl[0]
+      #dpitch = rot_ctrl[1]
+      #dyaw = rot_ctrl[2]
       #fingerAngle = motorCommands[4]
 
       # 両手の手先の状態を取得
       L_state = p.getLinkState(self.robonyanUid, self.L_EndEffectorIndex)
-      actualEndEffectorPos = state[0]
+      R_state = p.getLinkState(self.robonyanUid, self.R_EndEffectorIndex)
+      L_actualEndEffectorPos = L_state[0]
+      R_actualEndEffectorPos = R_state[0]
       #print("pos[2] (getLinkState(kukaEndEffectorIndex)")
       #print(actualEndEffectorPos[2])
 
-      self.endEffectorPos[0] = self.endEffectorPos[0] + dx
-      if (self.endEffectorPos[0] > 0.65):
-        self.endEffectorPos[0] = 0.65
-      if (self.endEffectorPos[0] < 0.50):
-        self.endEffectorPos[0] = 0.50
-      self.endEffectorPos[1] = self.endEffectorPos[1] + dy
-      if (self.endEffectorPos[1] < -0.17):
-        self.endEffectorPos[1] = -0.17
-      if (self.endEffectorPos[1] > 0.22):
-        self.endEffectorPos[1] = 0.22
+      self.L_endEffectorPos[0] = self.L_endEffectorPos[0] + dx
+      if (self.L_endEffectorPos[0] > 0.95):
+        self.L_endEffectorPos[0] = 0.95
+      if (self.L_endEffectorPos[0] < 0.58):
+        self.L_endEffectorPos[0] = 0.58
+      self.L_endEffectorPos[1] = self.L_endEffectorPos[1] + dy
+      if (self.L_endEffectorPos[1] < 0.0):
+        self.L_endEffectorPos[1] = 0.0
+      if (self.L_endEffectorPos[1] > 0.65):
+        self.L_endEffectorPos[1] = 0.65
+
 
       #print ("self.endEffectorPos[2]")
       #print (self.endEffectorPos[2])
       #print("actualEndEffectorPos[2]")
       #print(actualEndEffectorPos[2])
       #if (dz<0 or actualEndEffectorPos[2]<0.5):
-      self.endEffectorPos[2] = self.endEffectorPos[2] + dz
 
-      self.endEffectorAngle = self.endEffectorAngle + da
+      self.L_endEffectorPos[2] = self.L_endEffectorPos[2] + dz
+      if (self.L_endEffectorPos[2] > 0.9):
+        self.L_endEffectorPos[2] = 0.9
+      if (self.L_endEffectorPos[2] < 0.68):
+        self.L_endEffectorPos[2] = 0.68
+
+
+      self.R_endEffectorPos[2] = self.R_endEffectorPos[2] + dz
+
+      self.R_endEffectorPos[0] = self.R_endEffectorPos[0] + dx
+      if (self.R_endEffectorPos[0] > 0.95):
+        self.R_endEffectorPos[0] = 0.95
+      if (self.R_endEffectorPos[0] < 0.58):
+        self.R_endEffectorPos[0] = 0.58
+      self.R_endEffectorPos[1] = self.R_endEffectorPos[1] + dy
+      if (self.R_endEffectorPos[1] < -0.65):
+        self.R_endEffectorPos[1] = -0.65
+      if (self.R_endEffectorPos[1] > 0.0):
+        self.R_endEffectorPos[1] = 0.0
+
+
+      #print ("self.endEffectorPos[2]")
+      #print (self.endEffectorPos[2])
+      #print("actualEndEffectorPos[2]")
+      #print(actualEndEffectorPos[2])
+      #if (dz<0 or actualEndEffectorPos[2]<0.5):
+      self.R_endEffectorPos[2] = self.R_endEffectorPos[2] + dz
+      if (self.R_endEffectorPos[2] > 0.9):
+        self.R_endEffectorPos[2] = 0.9
+      if (self.R_endEffectorPos[2] < 0.68):
+        self.R_endEffectorPos[2] = 0.68
+
+      #self.endEffectorAngle = self.endEffectorAngle + da
       pos = self.endEffectorPos
-      orn = p.getQuaternionFromEuler([0, -math.pi, 0])  # -math.pi,yaw])
+      #orn = p.getQuaternionFromEuler([0, -math.pi, 0])  # -math.pi,yaw])
+      orn = p.getQuaternionFromEuler(rot_ctrl)
       if (self.useNullSpace == 1):
         if (self.useOrientation == 1):
-          jointPoses = p.calculateInverseKinematics(self.robonyanUid, self.kukaEndEffectorIndex, pos,
+          jointPoses = p.calculateInverseKinematics(self.robonyanUid, self.robonyanEndEffectorIndex, pos,
                                                     orn, self.ll, self.ul, self.jr, self.rp)
         else:
           jointPoses = p.calculateInverseKinematics(self.robonyanUid,
-                                                    self.kukaEndEffectorIndex,
+                                                    self.robonyanEndEffectorIndex,
                                                     pos,
                                                     lowerLimits=self.ll,
                                                     upperLimits=self.ul,
@@ -440,21 +501,21 @@ class Kuka:
       else:
         if (self.useOrientation == 1):
           jointPoses = p.calculateInverseKinematics(self.robonyanUid,
-                                                    self.kukaEndEffectorIndex,
+                                                    self.robonyanEndEffectorIndex,
                                                     pos,
                                                     orn,
                                                     jointDamping=self.jd)
         else:
-          jointPoses = p.calculateInverseKinematics(self.robonyanUid, self.kukaEndEffectorIndex, pos)
+          jointPoses = p.calculateInverseKinematics(self.robonyanUid, self.robonyanEndEffectorIndex, pos)
 
       #print("jointPoses")
       #print(jointPoses)
       #print("self.kukaEndEffectorIndex")
       #print(self.kukaEndEffectorIndex)
       if (self.useSimulation):
-        for i in range(self.kukaEndEffectorIndex + 1):
+        for i in range(self.robonyanEndEffectorIndex + 1):
           #print(i)
-          p.setJointMotorControl2(bodyUniqueId=self.kukaUid,
+          p.setJointMotorControl2(bodyUniqueId=self.robonyanUid,
                                   jointIndex=i,
                                   controlMode=p.POSITION_CONTROL,
                                   targetPosition=jointPoses[i],
@@ -466,8 +527,9 @@ class Kuka:
       else:
         #reset the joint state (ignoring all dynamics, not recommended to use during simulation)
         for i in range(self.numJoints):
-          p.resetJointState(self.kukaUid, i, jointPoses[i])
+          p.resetJointState(self.robonyanUid, i, jointPoses[i])
       #fingers
+      """
       p.setJointMotorControl2(self.kukaUid,
                               7,
                               p.POSITION_CONTROL,
@@ -494,12 +556,13 @@ class Kuka:
                               p.POSITION_CONTROL,
                               targetPosition=0,
                               force=self.fingerTipForce)
+      """
 
     else:
-      for action in range(len(motorCommands)):
+      for action in range(len(actions)):
         motor = self.motorIndices[action]
-        p.setJointMotorControl2(self.kukaUid,
+        p.setJointMotorControl2(self.robonyanUid,
                                 motor,
                                 p.POSITION_CONTROL,
-                                targetPosition=motorCommands[action],
+                                targetPosition=actions[action],
                                 force=self.maxForce)
