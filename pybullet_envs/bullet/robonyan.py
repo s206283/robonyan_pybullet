@@ -19,6 +19,60 @@ from pkg_resources import parse_version
 class Robonyan:
 
 
+  def __init__(self, urdfRootPath=pybullet_data.getDataPath(), timeStep=0.01):
+    self.urdfRootPath = urdfRootPath
+    self.timeStep = timeStep
+    self.maxVelocity = .35
+    self.maxForce = 200.
+    self.fingerAForce = 2
+    self.fingerBForce = 2.5
+    self.fingerTipForce = 2
+    self.useInverseKinematics = 1
+    self.useSimulation = 1
+    self.useNullSpace = 21
+    self.useOrientation = 1
+
+    self.proximity_L1 = 11
+    self.proximity_L2 = 18
+    self.proximity_L3 = 25
+    self.proximity_R1 = 39
+    self.proximity_R2 = 46
+    self.proximity_R3 = 53
+    self.proximity_list = np.array([self.proximity_L1, self.proximity_L2, self.proximity_L3, self.proximity_R1, self.proximity_R2, self.proximity_R3])
+    self.force_L1 = 13
+    self.force_L2 = 20
+    self.force_L3 = 27
+    self.force_R1 = 41
+    self.force_R2 = 48
+    self.force_R3 = 55
+
+    self.L_EndEffectorIndex = 5
+    self.R_EndEffectorIndex = 33
+
+    self.kinect_rgb_width = 1920
+    self.kinect_rgb_height = 1080
+    self.kinect_d_width = 512
+    self.kinect_d_height = 424
+
+    self.handcamera_width = 640
+    self.handcamera_height = 480
+
+
+    #lower limits for null space
+    self.ll = [-2.70, -1.48, -2.96, -2.87, -2.00, -3.05]
+    #upper limits for null space
+    self.ul = [2.70, -1.48, 0.87, 2.87, 2.00, 3.05]
+    #joint ranges for null space
+    self.jr = [5.8, 4, 5.8, 4, 5.8, 4, 6]
+    #restposes for null space
+    self.rp = [0, 0, 0, 0.5 * math.pi, 0, -math.pi * 0.5 * 0.66, 0]
+    #joint damping coefficents
+    self.jd = [
+        0.00001, 0.00001, 0.00001, 0.00001, 0.00001, 0.00001, 0.00001, 0.00001, 0.00001, 0.00001,
+        0.00001, 0.00001, 0.00001, 0.00001
+    ]
+    self.reset()
+
     def rotate_x(x):
         r = np.float32(x)
         c = np.cos(r)
@@ -51,59 +105,6 @@ class Robonyan:
             [0,0,1]])
 
         return Rz
-
-  def __init__(self, urdfRootPath=pybullet_data.getDataPath(), timeStep=0.01):
-    self.urdfRootPath = urdfRootPath
-    self.timeStep = timeStep
-    self.maxVelocity = .35
-    self.maxForce = 200.
-    self.fingerAForce = 2
-    self.fingerBForce = 2.5
-    self.fingerTipForce = 2
-    self.useInverseKinematics = 1
-    self.useSimulation = 1
-    self.useNullSpace = 21
-    self.useOrientation = 1
-
-    self.proximity_L1 = 11
-    self.proximity_L2 = 18
-    self.proximity_L3 = 25
-    self.proximity_R1 = 39
-    self.proximity_R2 = 46
-    self.proximity_R3 = 53
-    self.proximity_list = np.array([self.proximity_L1, self.proximity_L2, self.proximity_L3, self.proximity_R1, self.proximity_R2, self.proximity_R3])
-    self.force_L1 = 13
-    self.force_L2 = 20
-    self.force_L3 = 27
-    self.force_R1 = 41
-    self.force_R2 = 48
-    self.force_R3 = 55
-
-    self.L_EndEffectorIndex = 5
-
-    self.kinect_rgb_width = 1920
-    self.kinect_rgb_height = 1080
-    self.kinect_d_width = 512
-    self.kinect_d_height = 424
-
-    self.handcamera_width = 640
-    self.handcamera_height = 480
-
-
-    #lower limits for null space
-    self.ll = [-2.70, -1.48, -2.96, -2.87, -2.00, -3.05]
-    #upper limits for null space
-    self.ul = [2.70, -1.48, 0.87, 2.87, 2.00, 3.05]
-    #joint ranges for null space
-    self.jr = [5.8, 4, 5.8, 4, 5.8, 4, 6]
-    #restposes for null space
-    self.rp = [0, 0, 0, 0.5 * math.pi, 0, -math.pi * 0.5 * 0.66, 0]
-    #joint damping coefficents
-    self.jd = [
-        0.00001, 0.00001, 0.00001, 0.00001, 0.00001, 0.00001, 0.00001, 0.00001, 0.00001, 0.00001,
-        0.00001, 0.00001, 0.00001, 0.00001
-    ]
-    self.reset()
 
   def reset(self):
     objects = p.loadSDF(os.path.join(self.urdfRootPath, "robonyan_gripper/robonyan_test.sdf"))
@@ -457,7 +458,6 @@ class Robonyan:
         self.L_endEffectorPos[2] = 0.68
 
 
-      self.R_endEffectorPos[2] = self.R_endEffectorPos[2] + dz
 
       self.R_endEffectorPos[0] = self.R_endEffectorPos[0] + dx
       if (self.R_endEffectorPos[0] > 0.95):
