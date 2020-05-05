@@ -39,7 +39,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 #リプレイメモリー
 Transition = namedtuple('Transition',
-                        ('img_state', 'prox_state', 'action', 'img_next_state', 'prox_next_state' 'reward','done'))
+                        ('img_state', 'prox_state', 'action', 'img_next_state', 'prox_next_state' , 'reward' ,'done'))
 
 class ReplayMemory(object):
     def __init__(self, capacity):
@@ -71,13 +71,13 @@ class MultiActer(nn.Module):
         super(MultiActer, self).__init__()
 
         self.conv = nn.Sequential(
-            nn.Conv2d(in_channels=3, out_channels=16, kernel_size=5, padding=2),
+            nn.Conv2d(in_channels=3, out_channels=16, kernel_size=5, stride=2),
             nn.BatchNorm2d(16),
             nn.ReLU(inplace=True),
-            nn.Conv2d(in_channels=16, out_channels=32, kernel_size=5, padding=2),
+            nn.Conv2d(in_channels=16, out_channels=32, kernel_size=5, stride=2),
             nn.BatchNorm2d(32),
             nn.ReLU(inplace=True),
-            nn.Conv2d(32, 32, kernel_size=5, stride=2),
+            nn.Conv2d(in_channels=32, out_channels=32, kernel_size=5, stride=2),
             nn.BatchNorm2d(32),
             nn.ReLU(inplace=True)
         )
@@ -89,6 +89,7 @@ class MultiActer(nn.Module):
         convw = conv2d_size_out(conv2d_size_out(conv2d_size_out(img_w)))
         convh = conv2d_size_out(conv2d_size_out(conv2d_size_out(img_h)))
         conv_input_size = convw * convh * 32
+        #conv_input_size = 19 * 37 * 32
         #self.head = nn.Linear(conv_input_size, outputs)
 
         self.full_connection = nn.Sequential(
@@ -99,6 +100,8 @@ class MultiActer(nn.Module):
         )
 
     def forward(self, img, prox):
+
+        conv_input_size = 13 * 13 * 32
 
         # ひとつめのデータを用いて畳み込みの計算
         x = self.conv(img)
@@ -117,16 +120,16 @@ class MultiActer(nn.Module):
 class MultiCritic(nn.Module):
     def __init__(self, img_h, img_w, prox_size, act_size):
 
-        super(MultiActer, self).__init__()
+        super(MultiCritic, self).__init__()
 
         self.conv = nn.Sequential(
-            nn.Conv2d(in_channels=3, out_channels=16, kernel_size=5, padding=2),
+            nn.Conv2d(in_channels=3, out_channels=16, kernel_size=5, stride=2),
             nn.BatchNorm2d(16),
             nn.ReLU(inplace=True),
-            nn.Conv2d(in_channels=16, out_channels=32, kernel_size=5, padding=2),
+            nn.Conv2d(in_channels=16, out_channels=32, kernel_size=5, stride=2),
             nn.BatchNorm2d(32),
             nn.ReLU(inplace=True),
-            nn.Conv2d(32, 32, kernel_size=5, stride=2),
+            nn.Conv2d(in_channels=32, out_channels=32, kernel_size=5, stride=2),
             nn.BatchNorm2d(32),
             nn.ReLU(inplace=True)
         )
@@ -138,6 +141,7 @@ class MultiCritic(nn.Module):
         convw = conv2d_size_out(conv2d_size_out(conv2d_size_out(img_w)))
         convh = conv2d_size_out(conv2d_size_out(conv2d_size_out(img_h)))
         conv_input_size = convw * convh * 32
+        #conv_input_size = 19 * 37 * 32
         #self.head = nn.Linear(conv_input_size, outputs)
 
         self.obs_net = nn.Sequential(
@@ -152,6 +156,8 @@ class MultiCritic(nn.Module):
         )
 
     def forward(self, img, prox, a):
+
+        conv_input_size = 13 * 13 * 32
 
         # ひとつめのデータを用いて畳み込みの計算
         x = self.conv(img)
@@ -180,13 +186,16 @@ def optimize_model():
     batch = Transition(*zip(*transitions))
 
     #batchを一括して処理するためtensorのリストを2次元テンソルに変換
-    img_state_batch = torch.stack(batch.img_state,dim=0)
-    prox_state_batch = torch.stack(batch.prox_state,dim=0)
-    action_batch = torch.stack(batch.action,dim=0)
-    reward_batch = torch.stack(batch.reward,dim=0)
-    img_next_state_batch = torch.stack(batch.img_next_state,dim=0)
-    prox_next_state_batch = torch.stack(batch.prox_next_state,dim=0)
-    done_batch = torch.stack(batch.done,dim=0)
+    img_state_batch = torch.cat(batch.img_state)
+    prox_state_batch = torch.cat(batch.prox_state)
+    action_batch = torch.cat(batch.action)
+    reward_batch = torch.cat(batch.reward)
+    img_next_state_batch = torch.cat(batch.img_next_state)
+    prox_next_state_batch = torch.cat(batch.prox_next_state)
+    done_batch = torch.cat(batch.done)
+
+    reward_batch = reward_batch.unsqueeze(1)
+    done_batch = done_batch.unsqueeze(1)
 
     #Qネットのloss関数計算
     next_actions = policy_target_net(img_next_state_batch, prox_next_state_batch)
@@ -246,17 +255,21 @@ def load_model(self, actor_path, critic_path):
     if critic_path is not None:
         q_net.load_state_dict(torch.load(critic_path))
 
+env.render(mode="human")
+
 #action,observationの要素数取得
 n_actions = env.action_space.shape[0]
 init_obs = env.reset()
 init_img = init_obs[0]
 init_prox = init_obs[1]
-img_height , img_width, _ = init_img.shape
+#img_resize = init_img.resize((320, 180))
+#img_height , img_width, _ = img_resize.shape
+img_height = 128
+img_width = 128
 n_prox = init_prox.shape
 
-print('num actions,observations',n_actions,n_observations )
+#print('num actions,observations',n_actions,init_img.shape,n_prox )
 
-self, img_h, img_w, prox_size, act_size
 
 #ネットワーク
 #policyネットとそのtargetネット
@@ -276,7 +289,7 @@ steps_done = 0
 
 # 画像のリサイズ
 resize = T.Compose([T.ToPILImage(),
-                    T.Resize(320, interpolation=Image.CUBIC),
+                    T.Resize((128, 128), interpolation=Image.CUBIC),
                     T.ToTensor()])
 
 #BATCH_SIZE = 128
@@ -305,10 +318,11 @@ for i_episode in range(num_episodes):
     img_state = observation[0]
     img_state = img_state.transpose((2, 0, 1))
     img_state = np.ascontiguousarray(img_state, dtype=np.float32) / 255
-    tensr_img_state = torch.from_numpy(img_state)
+    tensor_img_state = torch.from_numpy(img_state)
     tensor_img_state = resize(tensor_img_state).unsqueeze(0).to(device)
     prox_state = observation[1]
     tensor_prox_state = torch.tensor(prox_state,device=device,dtype=torch.float)
+    tensor_prox_state = torch.unsqueeze(tensor_prox_state, 0)
 
     done = False
     episode_reward = 0.0
@@ -338,7 +352,7 @@ for i_episode in range(num_episodes):
         #action = np.clip(action, -1, 1)
 
         #物理モデル1ステップ---------------------------
-        next_observation, reward, done, info = env.step(action)
+        next_observation, reward, done, info = env.step(action[0])
         img_next_state = next_observation[0]
         img_next_state = img_next_state.transpose((2, 0, 1))
         img_next_state = np.ascontiguousarray(img_state, dtype=np.float32) / 255
@@ -350,12 +364,12 @@ for i_episode in range(num_episodes):
         #tensor_observation = torch.tensor(observation,device=device,dtype=torch.float)
         tensor_action = torch.tensor(action,device=device,dtype=torch.float)
         tensor_img_next_state = torch.from_numpy(img_next_state)
-        tensor_img_state = resize(img_state).unsqueeze(0).to(device)
+        tensor_img_next_state = resize(tensor_img_next_state).unsqueeze(0).to(device)
         tensor_prox_next_state = torch.tensor(prox_next_state,device=device,dtype=torch.float)
         #tensor_next_observation = torch.tensor(next_observation,device=device,dtype=torch.float)
         tensor_reward = torch.tensor([reward],device=device,dtype=torch.float)
         tensor_done =  torch.tensor([done],device=device,dtype=torch.float)
-        memory.push(tensor_observation, tensor_action, tensor_next_observation, tensor_reward,tensor_done)
+        memory.push(tensor_img_state, tensor_prox_state, tensor_action, tensor_img_next_state, tensor_prox_next_state, tensor_reward,tensor_done)
 
         #observation(state)更新------------------------
         #observation = next_observation
