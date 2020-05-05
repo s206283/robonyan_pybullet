@@ -340,15 +340,22 @@ for i_episode in range(num_episodes):
         d = (1 - t/max_step)
 
         with torch.no_grad():
-          action = policy_net(tensor_img_state, tensor_prox_state)
-          action = action.cpu().data.numpy()
+            action = policy_net(tensor_img_state, tensor_prox_state)
+            action = action.cpu().data.numpy()
 
         #最後は純粋にネットワークのデータを取得するためノイズ無し-------------------
         if (i_episode != num_episodes -1 ):
           #OUNoise
-          noise = noise - theta * noise + sigma * np.array([random.uniform(-1.0,1.0) for i in range(len(noise))])
-          action += noise
+            noise = noise - theta * noise + sigma * np.array([random.uniform(-1.0,1.0) for i in range(len(noise))])
+            action += noise
 
+        max_pos = 0.02
+        max_rot = 0.1745
+        pos = action[:3]
+        rot = action[3:]
+        clip_pos = np.clip(pos, -max_pos, max_pos)
+        clip_rot = np.clip(rot, -max_rot, max_rot)
+        action = np.concatenate([clip_pos, clip_rot], 0)
         #action = np.clip(action, -1, 1)
 
         #物理モデル1ステップ---------------------------
