@@ -351,15 +351,15 @@ for i_episode in range(num_episodes):
 
         max_pos = 0.02
         max_rot = 0.1745
-        pos = action[:3]
-        rot = action[3:]
+        pos = action[0][:3]
+        rot = action[0][3:]
         clip_pos = np.clip(pos, -max_pos, max_pos)
         clip_rot = np.clip(rot, -max_rot, max_rot)
         action = np.concatenate([clip_pos, clip_rot], 0)
         #action = np.clip(action, -1, 1)
 
         #物理モデル1ステップ---------------------------
-        next_observation, reward, done, info = env.step(action[0])
+        next_observation, reward, done, info = env.step(action)
         img_next_state = next_observation[0]
         img_next_state = img_next_state.transpose((2, 0, 1))
         img_next_state = np.ascontiguousarray(img_state, dtype=np.float32) / 255
@@ -370,9 +370,11 @@ for i_episode in range(num_episodes):
         #学習用にメモリに保存--------------------------
         #tensor_observation = torch.tensor(observation,device=device,dtype=torch.float)
         tensor_action = torch.tensor(action,device=device,dtype=torch.float)
+        tensor_acton = torch.unsqueeze(tensor_action, 0)
         tensor_img_next_state = torch.from_numpy(img_next_state)
         tensor_img_next_state = resize(tensor_img_next_state).unsqueeze(0).to(device)
         tensor_prox_next_state = torch.tensor(prox_next_state,device=device,dtype=torch.float)
+        tensor_prox_next_state = torch.unsqueeze(tensor_prox_next_state, 0)
         #tensor_next_observation = torch.tensor(next_observation,device=device,dtype=torch.float)
         tensor_reward = torch.tensor([reward],device=device,dtype=torch.float)
         tensor_done =  torch.tensor([done],device=device,dtype=torch.float)
@@ -406,30 +408,32 @@ for i_episode in range(num_episodes):
         img_state = observation[0]
         img_state = img_state.transpose((2, 0, 1))
         img_state = np.ascontiguousarray(img_state, dtype=np.float32) / 255
-        tensr_img_state = torch.from_numpy(img_state)
+        tensor_img_state = torch.from_numpy(img_state)
         tensor_img_state = resize(tensor_img_state).unsqueeze(0).to(device)
         prox_state = observation[1]
         tensor_prox_state = torch.tensor(prox_state,device=device,dtype=torch.float)
+        tensor_prox_state = torch.unsqueeze(tensor_prox_state, 0)
         episode_reward = 0
         t = 0
         while True:
             d = (1 - t/max_step)
-            action = agent.policy_net(tensor_img_state, tensor_prox_state)
+            action = policy_net(tensor_img_state, tensor_prox_state)
             action = action.cpu().data.numpy()
-            next_observation, reward, done, _ = env.step(action)
+            next_observation, reward, done, _ = env.step(action[0])
             reward = reward * d
             img_next_state = next_observation[0]
             img_next_state = img_next_state.transpose((2, 0, 1))
-            img_next_state = np.ascontiguousarray(img_state, dtype=np.float32) / 255
+            img_next_state = np.ascontiguousarray(img_next_state, dtype=np.float32) / 255
             prox_next_state = next_observation[1]
             tensor_img_next_state = torch.from_numpy(img_next_state)
-            tensor_img_state = resize(img_state).unsqueeze(0).to(device)
+            tensor_img_state = resize(tensor_img_next_state).unsqueeze(0).to(device)
             tensor_prox_next_state = torch.tensor(prox_next_state,device=device,dtype=torch.float)
+            tensor_prox_next_state = torch.unsqueeze(tensor_prox_next_state, 0)
             episode_reward += reward
 
             #next_state = torch.Tensor([next_state])
 
-            state = next_state
+            #state = next_state
             tensor_img_state = tensor_img_next_state
             tensor_prox_state = tensor_prox_next_state
 
