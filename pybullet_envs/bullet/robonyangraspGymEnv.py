@@ -44,7 +44,7 @@ class RobonyanGraspGymEnv(gym.Env):
         #self._cam_pitch = -40
         self._cam_dist = 0.2
         #self._cam_yaw = 45
-        self._cam_roll = -45
+        self._cam_roll = 45
         self._cam_yaw = 180
         #self._cam_pitch = -45
         self._cam_pitch = 0
@@ -617,8 +617,6 @@ class RobonyanGraspGymEnv(gym.Env):
             self._envStepCounter += 1
 
             self._observation = self.getExtendedObservation()
-            if (1 - abs((self._observation[1][3] + self._observation[1][4]) - self._observation[1][5])/5) =1:
-                self._grasp = True
 
             if self._renders:
                 time.sleep(self._timeStep)
