@@ -131,6 +131,7 @@ class RobonyanGraspGymEnv(gym.Env):
     def reset(self):
         self.terminated = 0
         self._grasp = False
+        self._close = False
         self._env_step = 0
         #physicsClient = p.connect(p.GUI)
         p.setAdditionalSearchPath(self._urdfRoot)
@@ -616,17 +617,18 @@ class RobonyanGraspGymEnv(gym.Env):
             self._envStepCounter += 1
 
             self._observation = self.getExtendedObservation()
-            if abs((self._observation[1][3] + self._observation[1][4]) - self._observation[1][5]) <= 0.05:
-                if abs(np.sum(self._observation[1]) - 10) <= 0.05:
-                    self._grasp = True
+            if (1 - abs((self._observation[1][3] + self._observation[1][4]) - self._observation[1][5])/5) =1:
+                self._grasp = True
+
             if self._renders:
                 time.sleep(self._timeStep)
 
             #print("self._envStepCounter")
             #print(self._envStepCounter)
 
-            done = self._termination()
             reward = self._reward()
+            done = self._termination()
+
             #print("len=%r" % len(self._observation))
 
             return np.array(self._observation), reward, done, {}
@@ -665,18 +667,25 @@ class RobonyanGraspGymEnv(gym.Env):
         """Terminates the episode if we have tried to grasp or if we are above
         maxSteps steps.
         """
-        return self._grasp or self._envStepCounter >= maxSteps
+        return self._grasp or self._close or self._envStepCounter >= maxSteps
 
     def _reward(self):
 
-        if self._grasp:
-            reward +=1
+        reward = 0
+
+        if (self._observation[1][3] + self._observation[1][4] + self._observation[1][5]) > 20:
+            reward = -1
+            self._close = True
             return reward
 
+        if abs((self._observation[1][3] + self._observation[1][4]) - self._observation[1][5]) < 0.1 :
+            reward = 1 - (abs(self._observation[1][5] - 5) / 5)**0.4
 
         #print("reward")
         #print(reward)
-        reward = 0
+
+        if reward > 0.8:
+            self._grasp = True
         return reward
 
     if parse_version(gym.__version__) < parse_version('0.9.6'):
