@@ -23,6 +23,7 @@ class Robonyan:
         self.timeStep = timeStep
         self.maxVelocity = .35
         self.maxForce = 200.
+        self.fingerForce = 2.5
         #self.fingerAForce = 2
         #self.fingerBForce = 2.5
         #self.fingerTipForce = 2
@@ -39,6 +40,10 @@ class Robonyan:
         self.proximity_R3 = 53
         self.proximity_list = np.array([self.proximity_L1, self.proximity_L2, self.proximity_L3,
                                     self.proximity_R1, self.proximity_R2, self.proximity_R3])
+
+        self.Lfinger_list = np.array([8,9,10,12,15,16,17,19,22,23,24,26])
+        self.Rfinger_list = np.array([36,37,38,40,43,44,45,47,50,51,52,54])
+
         self.force_L1 = 13
         self.force_L2 = 20
         self.force_L3 = 27
@@ -57,25 +62,6 @@ class Robonyan:
         self.handcamera_width = 640
         self.handcamera_height = 480
 
-
-        #lower limits for null space
-        #self.ll = [-2.70, -1.48, -2.96, -2.87, -2.00, -3.05]
-        #upper limits for null space
-        #self.ul = [2.70, -1.48, 0.87, 2.87, 2.00, 3.05]
-        #joint ranges for null space
-        #self.jr = [5.8, 2.96, 3.83, 5.8, 4, 6.1]
-        #restposes for null space
-        #self.rp = [0, 0, 0, 0.5 * math.pi, 0, -math.pi * 0.5 * 0.66]
-        #joint damping coefficents
-
-
-        """
-        self.jd = [
-                    0.00001, 0.00001, 0.00001, 0.00001, 0.00001, 0.00001, 0.00001, 0.00001, 0.00001, 0.00001,
-                    0.00001, 0.00001, 0.00001, 0.00001
-                    ]
-        """
-        #self.jd = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
         self.reset()
 
     def rotate_x(self, x):
@@ -159,20 +145,7 @@ class Robonyan:
         p.resetBasePositionAndOrientation(self.robonyanUid, [-0.100000, 0.000000, 0.30000],
                                                 [0.000000, 0.000000, 0.000000, 1.000000])
 
-        # 各ジョイントの初期角度
-        """
-        self.jointPositions = [
-            0.006418, 0.413184, -0.011401, -1.589317, 0.005379, 1.137684, -0.006539, 0.000048,
-            -0.299912, 0.000000, -0.000043, 0.299960, 0.000000, -0.000200
-            ]
-        """
-        #for jointIndex in range(numJoints):
-        #p.resetJointState(robonyanUid, jointIndex, 0)
-        #p.setJointMotorControl2(robonyanUid,
-                                #jointIndex,
-                                #p.POSITION_CONTROL,
-                                #targetPosition=0,
-                                #force=maxForce)
+
         self.numJoints = p.getNumJoints(self.robonyanUid)
         for jointIndex in range(self.numJoints):
             p.resetJointState(self.robonyanUid, jointIndex, 0)
@@ -182,59 +155,11 @@ class Robonyan:
                                     targetPosition=0,
                                     force=self.maxForce)
 
-        self.ll, self.ul, self.jr, self.rp = self.getJointRanges(self.robonyanUid, includeFixed=False)
-
-        self.jd = [0.1] * self.numJoints
-
-        """
-        self.trayUid = p.loadURDF(os.path.join(self.urdfRootPath, "tray/tray.urdf"), 0.640000,
-                                    0.075000, -0.190000, 0.000000, 0.000000, 1.000000, 0.000000)
-        self.endEffectorPos = [0.537, 0.0, 0.5]
-        self.endEffectorAngle = 0
-        """
-
-        # endEffectorPosを3指の中点に変更するべき
         L_state = p.getLinkState(self.robonyanUid, self.L_EndEffectorIndex)
         R_state = p.getLinkState(self.robonyanUid, self.R_EndEffectorIndex)
         self.L_EndEffectorPos = list(L_state[0])
         self.R_EndEffectorPos = list(R_state[0])
-        #print(self.L_EndEffectorPos)
-        #print(self.R_EndEffectorPos)
 
-        """
-        # 各ジョイントのmotorNAmes, motorIndicesのリスト作成
-        self.leftmotorNames = []
-        self.leftmotorIndices = []
-        # lefthandのアームジョイントは0～5
-        self.leftnumjoints = [i for i in range(6)]
-
-
-        #for i in range(self.leftnumjoints):
-        for i in range(6):
-            jointInfo = p.getJointInfo(self.robonyanUid, i)
-            qIndex = jointInfo[3]
-            if qIndex > -1:
-                #print("motorname")
-                #print(jointInfo[1])
-                self.leftmotorNames.append(str(jointInfo[1]))
-                self.leftmotorIndices.append(i)
-
-        # 各ジョイントのmotorNAmes, motorIndicesのリスト作成
-        self.rightmotorNames = []
-        self.rightmotorIndices = []
-        # Righthandのアームジョイントは28～33
-        self.rightnumjoints = [i for i in range(28, 34)]
-
-        #for i in range(self.rightnumjoints):
-        for i in range(28, 34):
-            jointInfo = p.getJointInfo(self.robonyanUid, i)
-            qIndex = jointInfo[3]
-            if qIndex > -1:
-                #print("motorname")
-                #print(jointInfo[1])
-                self.rightmotorNames.append(str(jointInfo[1]))
-                self.rightmotorIndices.append(i)
-        """
         self.motorNames = []
         self.motorIndices = []
 
@@ -261,11 +186,7 @@ class Robonyan:
     def getObservationDimension(self):
         return len(self.getObservation())
 
-
-    # RobonyanGymEnvに作成するため、不要（画像などセンサを用いない場合を作成し、比較してもいいかも）
     def getObservation(self):
-        #observation = []
-        # 両手の手先の状態を取得
 
         # kinectv2のカメラ座標取得
         kinect = p.getLinkState(self.robonyanUid, 56)
@@ -305,8 +226,100 @@ class Robonyan:
 
         return self._kinect_observation
 
-    # 両手の行動（はじめは片手のみ制御）
-    def reachAction(self, actions):
+    def getPregraspPosition(self):
+        L_proximity_1 = p.getLinkState(self.robonyanUid, self.proximity_L1)
+        L_proximity_2 = p.getLinkState(self.robonyanUid, self.proximity_L2)
+        L_proximity_3 = p.getLinkState(self.robonyanUid, self.proximity_L3)
+
+        R_proximity_1 = p.getLinkState(self.robonyanUid, self.proximity_R1)
+        R_proximity_2 = p.getLinkState(self.robonyanUid, self.proximity_R2)
+        R_proximity_3 = p.getLinkState(self.robonyanUid, self.proximity_R3)
+
+        L1_prox_pos = list(L_proximity_1[0])
+        L2_prox_pos = list(L_proximity_2[0])
+        L3_prox_pos = list(L_proximity_3[0])
+
+        L_x = (L1_prox_pos[0] + L2_prox_pos[0] + L3_prox_pos[0]) / 3
+        L_y = (L1_prox_pos[1] + L2_prox_pos[1] + L3_prox_pos[1]) / 3
+        L_z = (L1_prox_pos[2] + L2_prox_pos[2] + L3_prox_pos[2]) / 3
+
+        R1_prox_pos = list(R_proximity_1[0])
+        R2_prox_pos = list(R_proximity_2[0])
+        R3_prox_pos = list(R_proximity_3[0])
+
+        R_x = (R1_prox_pos[0] + R2_prox_pos[0] + R3_prox_pos[0]) / 3
+        R_y = (R1_prox_pos[1] + R2_prox_pos[1] + R3_prox_pos[1]) / 3
+        R_z = (R1_prox_pos[2] + R2_prox_pos[2] + R3_prox_pos[2]) / 3
+
+        self.L_pregrasp = np.array([L_x, L_y, L_z])
+        self.R_pregrasp = np.array([R_x, R_y, R_z])
+
+        return self.L_pregrasp, self.R_pregrasp
+
+    def JointControl(self, jointPoses):
+        j = 0
+        for i in range(self.numJoints):
+            jointInfo = p.getJointInfo(self.robonyanUid, i)
+            #type = jointInfo[2]
+            qIndex = jointInfo[3]
+            #if type == 'revolute':
+            if qIndex > -1:
+                p.resetJointState(self.robonyanUid,i,jointPoses[j])
+                j += 1
+
+        j = 0
+        for i in range(self.numJoints):
+            #print(i)
+            jointInfo = p.getJointInfo(self.robonyanUid, i)
+            #type = jointInfo[2]
+            qIndex = jointInfo[3]
+            #if type == 'revolute':
+            if qIndex > -1:
+                p.setJointMotorControl2(bodyUniqueId=self.robonyanUid,
+                                        jointIndex=i,
+                                        controlMode=p.POSITION_CONTROL,
+                                        targetPosition=jointPoses[j],
+                                        targetVelocity=0,
+                                        force=self.maxForce,
+                                        maxVelocity=self.maxVelocity,
+                                        positionGain=0.3,
+                                        velocityGain=1)
+                j += 1
+
+    def resetHandPosition(self, R_position, L_position):
+        R_pos, R_orn = R_position[:3], R_position[3:]
+        L_pos, L_orn = L_position[:3], L_position[3:]
+
+        #orn = [1.5708, 0, 0]
+        R_orn = p.getQuaternionFromEuler(R_orn)
+        L_orn = p.getQuaternionFromEuler(L_orn)
+
+        jointPoses = p.calculateInverseKinematics(self.robonyanUid, self.L_EndEffectorIndex, L_pos,
+                                                L_orn, self.ll, self.ul, self.jr, self.rp)
+        self.JointControl(jointPoses)
+
+        R_state = p.getLinkState(self.robonyanUid, self.R_EndEffectorIndex)
+        R_EndEffectorPos = R_state[0]
+
+        jointPoses = p.calculateInverseKinematics(self.robonyanUid, self.R_EndEffectorIndex, R_EndEffectorPos,
+                                                R_orn, self.ll, self.ul, self.jr, self.rp)
+        self.JointControl(jointPoses)
+
+        pos_vec = np.array(R_pos)
+        L_pregrasp, R_pregrasp =  self.getPregraspPosition()
+        R_d = pos_vec - R_pregrasp
+        R_state = p.getLinkState(self.robonyanUid, self.R_EndEffectorIndex)
+
+        R_EndEffectorPos = R_state[0]
+        pos = R_EndEffectorPos + R_d
+        pos = pos.tolist()
+
+        jointPoses = p.calculateInverseKinematics(self.robonyanUid, self.R_EndEffectorIndex, pos,
+                                                R_orn, self.ll, self.ul, self.jr, self.rp)
+
+        self.JointControl(jointPoses)
+
+    def applyAction(self, actions):
 
         #print ("self.numJoints")
         #print (self.numJoints)
@@ -344,6 +357,7 @@ class Robonyan:
             # 両手の手先の状態を取得
             L_state = p.getLinkState(self.robonyanUid, self.L_EndEffectorIndex)
             R_state = p.getLinkState(self.robonyanUid, self.R_EndEffectorIndex)
+
             L_actualEndEffectorPos = L_state[0]
             R_actualEndEffectorPos = R_state[0]
             #print(R_actualEndEffectorPos)
@@ -353,6 +367,7 @@ class Robonyan:
             #print(self.L_EndEffectorPos)
             #print(self.R_EndEffectorPos)
             #print(type(self.L_EndEffectorPos))
+
 
             self.L_EndEffectorPos[0] = self.L_EndEffectorPos[0] + dx
             if (self.L_EndEffectorPos[0] > 0.95):
@@ -471,35 +486,7 @@ class Robonyan:
                 #reset the joint state (ignoring all dynamics, not recommended to use during simulation)
                 for i in range(self.numJoints):
                     p.resetJointState(self.robonyanUid, i, jointPoses[i])
-            #fingers
-            """
-            p.setJointMotorControl2(self.kukaUid,
-                                    7,
-                                    p.POSITION_CONTROL,
-                                    targetPosition=self.endEffectorAngle,
-                                    force=self.maxForce)
-            p.setJointMotorControl2(self.kukaUid,
-                                    8,
-                                    p.POSITION_CONTROL,
-                                    targetPosition=-fingerAngle,
-                                    force=self.fingerAForce)
-            p.setJointMotorControl2(self.kukaUid,
-                                    11,
-                                    p.POSITION_CONTROL,
-                                    targetPosition=fingerAngle,
-                                    force=self.fingerBForce)
 
-            p.setJointMotorControl2(self.kukaUid,
-                                    10,
-                                    p.POSITION_CONTROL,
-                                    targetPosition=0,
-                                    force=self.fingerTipForce)
-            p.setJointMotorControl2(self.kukaUid,
-                                    13,
-                                    p.POSITION_CONTROL,
-                                    targetPosition=0,
-                                    force=self.fingerTipForce)
-            """
 
         else:
             for action in range(len(actions)):
@@ -509,3 +496,19 @@ class Robonyan:
                                         p.POSITION_CONTROL,
                                         targetPosition=actions[action],
                                         force=self.maxForce)
+
+    def graspAction(self, actions):
+        assert actions.shape == (12,)
+        actions = actions.copy()
+
+        for action in range(len(actions)):
+            motor = self.Rfinger_list[action]
+            p.resetJointState(self.robonyanUid,motor,actions[action])
+
+        for action in range(len(actions)):
+            motor = self.Rfinger_list[action]
+            p.setJointMotorControl2(self.robonyanUid,
+                                    motor,
+                                    p.POSITION_CONTROL,
+                                    targetPosition=actions[action],
+                                    force=self.fingerForce)
