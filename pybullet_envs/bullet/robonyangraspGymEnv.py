@@ -23,7 +23,7 @@ maxSteps = 1000
 RENDER_HEIGHT = 720
 RENDER_WIDTH = 960
 
-class RobonyanGymEnv(gym.Env):
+class RobonyanGraspGymEnv(gym.Env):
     metadata = {'render.modes': ['human', 'rgb_array'], 'video.frames_per_second': 50}
 
     def __init__(self,
@@ -42,9 +42,12 @@ class RobonyanGymEnv(gym.Env):
         #self._cam_dist = 1.3
         #self._cam_yaw = 180
         #self._cam_pitch = -40
-        self._cam_dist = 2
-        self._cam_yaw = 90
-        self._cam_pitch = -45
+        self._cam_dist = 0.2
+        #self._cam_yaw = 45
+        self._cam_roll = -45
+        self._cam_yaw = 180
+        #self._cam_pitch = -45
+        self._cam_pitch = 0
         #self._width = 341
         #self._height = 256
         self._kinect_rgb_width = 1920
@@ -77,17 +80,20 @@ class RobonyanGymEnv(gym.Env):
         if (self._isDiscrete):
             self.action_space = spaces.Discrete(7)
         else:
-            action_dim = 6
+            action_dim = 12
             self._action_bound = 1
             action_high = np.array([self._action_bound] * action_dim)
             self.action_space = spaces.Box(-action_high, action_high, dtype=np.float32)
             self._proximity_low = np.array([0] * 3)
             self._proximity_high = np.array([1] * 3)
+            self._force_low = np.array([0] * 3)
+            self._force_high = np.array([10] * 3)
 
         self.observation_space = spaces.Tuple((spaces.Box(low=0,high=255,
                                                          shape=(self._kinect_rgb_height, self._kinect_rgb_width, 4),
                                                          dtype=np.uint8),
-                                              spaces.Box(self._proximity_low, self._proximity_high, dtype=np.float32)))
+                                              spaces.Box(self._proximity_low, self._proximity_high, dtype=np.float32),
+                                              spaces.Box(self._force_low, self._force_high, dtype=np.float32)))
 
         self.viewer = None
 
@@ -124,6 +130,8 @@ class RobonyanGymEnv(gym.Env):
 
     def reset(self):
         self.terminated = 0
+        self._grasp = False
+        self._env_step = 0
         #physicsClient = p.connect(p.GUI)
         p.setAdditionalSearchPath(self._urdfRoot)
         p.resetSimulation()
@@ -135,9 +143,8 @@ class RobonyanGymEnv(gym.Env):
         p.loadURDF(os.path.join(self._urdfRoot, "table/table.urdf"), 1.000000, 0.00000, -0.050000,
                    0.000000, 0.000000, 0.707106781187, .707106781187)
 
-        xpos = 0.6 + 0.3 * random.random()
-        #ypos = 0 - 0.6 * random.random()
-        ypos = 0 -0.1 * random.random()
+        xpos = 0.8 + 0.1 * random.random()
+        ypos = 0 - 0.6 * random.random()
         ang = 3.1415925438 * random.random()
         orn = p.getQuaternionFromEuler([0, 0, ang])
 
@@ -164,16 +171,17 @@ class RobonyanGymEnv(gym.Env):
         for _ in range(500):
           p.stepSimulation()
 
-        # blockPos, max_blockOrn = p.getBasePositionAndOrientation(self.blockUid)
-        # ハンドとオブジェクトの距離の最大値を求める（報酬を求める時に使用）
-
-        L_pregraspPos, R_pregraspPos = self._robonyan.getPregraspPosition()
-
-        #block = p.getLinkState(self.blockUid, 0)
         blockPos, blockOrn = p.getBasePositionAndOrientation(self.blockUid)
-        blockPos = np.array(blockPos)
+        self.blockPos, self.blockOrn = blockPos, blockOrn
+        #blockPos = np.array(blockPos)
 
-        self.d_max = np.linalg.norm(R_pregraspPos - blockPos)
+        # noiseを加える
+        R_position = [blockPos[0], blockPos[1], blockPos[2] + 0.1, 0, 0.785398, 0]
+        L_position = [blockPos[0], blockPos[1] + 0.4, blockPos[2] + 0.1, 0, 0, -1.5708]
+
+        self._robonyan.resetHandPosition(R_position, L_position)
+
+        p.stepSimulation()
 
         self._observation = self.getExtendedObservation()
         return np.array(self._observation)
@@ -187,6 +195,108 @@ class RobonyanGymEnv(gym.Env):
 
     def getExtendedObservation(self):
 
+        camInfo = p.getDebugVisualizerCamera()
+
+        view_matrix = self._p.computeViewMatrixFromYawPitchRoll(cameraTargetPosition=self.blockPos,
+                                                                distance=self._cam_dist,
+                                                                yaw=self._cam_yaw,
+                                                                pitch=self._cam_pitch,
+                                                                roll=self._cam_roll,
+                                                                upAxisIndex=2)
+
+        proj_matrix = self._p.computeProjectionMatrixFOV(fov=60,
+                                                         aspect=float(RENDER_WIDTH) / RENDER_HEIGHT,
+                                                         nearVal=0.1,
+                                                         farVal=100.0)
+        (_, _, px, _, _) = self._p.getCameraImage(width=RENDER_WIDTH,
+                                                  height=RENDER_HEIGHT,
+                                                  viewMatrix=view_matrix,
+                                                  projectionMatrix=proj_matrix,
+                                                  renderer=self._p.ER_BULLET_HARDWARE_OPENGL)
+        rgb_array = np.array(px)
+        rgb_array = np.reshape(px, (RENDER_HEIGHT, RENDER_WIDTH, 4))
+        rgb_array = rgb_array[:, :, :3]
+
+        self.image = rgb_array
+
+        kinectviewMat = self.kinectviewMat()
+        kinectprojMat = camInfo[3]
+        #p.getCameraImage(320,200,viewMatrix=viewMat,projectionMatrix=projMat, flags=p.ER_NO_SEGMENTATION_MASK, renderer=p.ER_BULLET_HARDWARE_OPENGL)
+        #p.getCameraImage(width,height,viewMatrix=kinectviewMat,projectionMatrix=kinectprojMat, renderer=p.ER_BULLET_HARDWARE_OPENGL)
+
+        kinect_img_arr = p.getCameraImage(width=self._kinect_rgb_width,
+                                          height=self._kinect_rgb_height,
+                                          viewMatrix=kinectviewMat,
+                                          projectionMatrix=kinectprojMat)
+        kinect_rgb = kinect_img_arr[2]
+        # HxWxC
+        kinect_np_img_arr = np.reshape(kinect_rgb, (self._kinect_rgb_height, self._kinect_rgb_width, 4))
+        # C : 4 → 3
+        kinect_np_img_arr = kinect_np_img_arr[:, :, :3]
+        # CxHxW
+        #kinect_np_img_arr = kinect_np_img_arr.transpose((2, 0, 1))
+        #kinect_flatten = kinect_np_img_arr.reshape(-1)
+
+        self._kinect_observation = kinect_np_img_arr
+        #print(self._kinect_observation.shape)
+
+        L_handviewMat = self.L_handviewMat()
+        L_handprojMat = camInfo[3]
+        #p.getCameraImage(320,200,viewMatrix=viewMat,projectionMatrix=projMat, flags=p.ER_NO_SEGMENTATION_MASK, renderer=p.ER_BULLET_HARDWARE_OPENGL)
+        L_hand_img_arr = p.getCameraImage(width=self._handcamera_width,
+                                          height=self._handcamera_height,
+                                          viewMatrix=L_handviewMat,
+                                          projectionMatrix=L_handprojMat)
+        L_hand_rgb = L_hand_img_arr[2]
+        # HxWxC
+        L_hand_np_img_arr = np.reshape(L_hand_rgb, (self._handcamera_height, self._handcamera_width, 4))
+        # C : 4 → 3
+        L_hand_np_img_arr = L_hand_np_img_arr[:, :, :3]
+        # CxHxW
+        #L_hand_np_img_arr = L_hand_np_img_arr.transpose((2, 0, 1))
+
+        self._L_observation = L_hand_np_img_arr
+
+        #R_hand視点
+        R_handviewMat = self.R_handviewMat()
+        R_handprojMat = camInfo[3]
+        #p.getCameraImage(320,200,viewMatrix=viewMat,projectionMatrix=projMat, flags=p.ER_NO_SEGMENTATION_MASK, renderer=p.ER_BULLET_HARDWARE_OPENGL)
+        R_hand_img_arr = p.getCameraImage(width=self._handcamera_width,
+                                          height=self._handcamera_height,
+                                          viewMatrix=R_handviewMat,
+                                          projectionMatrix=R_handprojMat)
+        R_hand_rgb = R_hand_img_arr[2]
+        # HxWxC
+        R_hand_np_img_arr = np.reshape(R_hand_rgb, (self._handcamera_height, self._handcamera_width, 4))
+        # C : 4 → 3
+        R_hand_np_img_arr = R_hand_np_img_arr[:, :, :3]
+        # CxHxW
+        #R_hand_np_img_arr = R_hand_np_img_arr.transpose((2, 0, 1))
+
+        self._R_observation = R_hand_np_img_arr
+
+        self._L_proximity_observation, self._R_proximity_observation = self.proximity_sensor()
+
+        self._L_contact_observation, self._R_contact_observation = self.force_sensor()
+
+        self.L_proprioception, self.R_proprioception = self.proprioception()
+
+        #print(self._L_proximity_observation)
+        #print(self._L_proximity_observation.shape)
+        #print(self._R_proximity_observation)
+        #print(self._R_proximity_observation.shape)
+
+        #self._observation = (self._R_proximity_observation, self._R_contact_observation)
+        self._observation = np.concatenate([self._R_proximity_observation,
+                                            self._R_contact_observation,
+                                            self.R_proprioception], 0)
+        #print(self._observation)
+
+        self._observation = (self.image, self._observation)
+
+        return self._observation
+
+    def kinectviewMat(self):
         # kinectv2のカメラ座標取得
         kinect = p.getLinkState(self._robonyan.robonyanUid, 56)
         kinectPos,kinectOrn = kinect[0], kinect[1]
@@ -196,20 +306,31 @@ class RobonyanGymEnv(gym.Env):
         kinectPos[2] += 0.05
         #kinectPos = [-0.112 + 0.03153696, 0, 1.304 + 0.03153696]
         kinectPos = tuple(kinectPos)
-        #kinectEuler = p.getEulerFromQuaternion(kinectOrn)
-        #kinectYaw = kinectEuler[2]*360/(2.*math.pi)-90
 
+        camInfo = p.getDebugVisualizerCamera()
+
+        kinectMat = p.getMatrixFromQuaternion(kinectOrn)
+        upVector = [0,0,1]
+        forwardVec = [kinectMat[0],kinectMat[3],kinectMat[6]]
+        #sideVec =  [camMat[1],camMat[4],camMat[7]]
+        kinectUpVec =  [kinectMat[2],kinectMat[5],kinectMat[8]]
+        blockPos, blockOrn = p.getBasePositionAndOrientation(self.blockUid)
+        kinectTarget = blockPos
+        kinectUpTarget = [kinectPos[0]+kinectUpVec[0],kinectPos[1]+kinectUpVec[1],kinectPos[2]+kinectUpVec[2]]
+        kinectviewMat = p.computeViewMatrix(kinectPos, kinectTarget, kinectUpVec)
+
+        return kinectviewMat
+
+
+    def L_handviewMat(self):
         L_hand = p.getLinkState(self._robonyan.robonyanUid, 6)
-
-        R_hand = p.getLinkState(self._robonyan.robonyanUid, 34)
-
 
         # L_handのカメラ座標取得
         L_handPos,L_handOrn = L_hand[0], L_hand[1]
         L_handEuler = p.getEulerFromQuaternion(L_handOrn)
         L_handYaw = L_handEuler[2]*360/(2.*math.pi)-90
 
-        L_camera = np.array([0.01, 0, 0])
+        L_camera = np.array([0.02, 0, 0])
         L_handOrn = list(L_handOrn)
         # 回転行列の生成
         Lx = self.rotate_x(L_handOrn[0])
@@ -236,11 +357,29 @@ class RobonyanGymEnv(gym.Env):
 
         L_handOrn = tuple(L_handOrn)
 
+        camInfo = p.getDebugVisualizerCamera()
+
+        L_handMat = p.getMatrixFromQuaternion(L_handOrn)
+        upVector = [0,0,1]
+        forwardVec = [L_handMat[0],L_handMat[3],L_handMat[6]]
+        #sideVec =  [camMat[1],camMat[4],camMat[7]]
+        L_handUpVec =  [L_handMat[2],L_handMat[5],L_handMat[8]]
+        blockPos, blockOrn = p.getBasePositionAndOrientation(self.blockUid)
+        L_handTarget = self.blockPos
+        L_handUpTarget = [L_handPos[0]+L_handUpVec[0],L_handPos[1]+L_handUpVec[1],L_handPos[2]+L_handUpVec[2]]
+        L_handviewMat = p.computeViewMatrix(L_handPos, L_handTarget, L_handUpVec)
+
+        return L_handviewMat
+
+    def R_handviewMat(self):
+
+        R_hand = p.getLinkState(self._robonyan.robonyanUid, 34)
+
         # R_handのカメラ座標取得
         R_handPos,R_handOrn = R_hand[0], R_hand[1]
         R_handEuler = p.getEulerFromQuaternion(R_handOrn)
         R_handYaw = R_handEuler[2]*360/(2.*math.pi)-90
-        R_camera = np.array([0.01, 0, 0])
+        R_camera = np.array([0.02, 0, 0])
         R_handOrn = list(R_handOrn)
         # 回転行列の生成
         Rx = self.rotate_x(R_handOrn[0])
@@ -268,84 +407,21 @@ class RobonyanGymEnv(gym.Env):
         R_handOrn = tuple(R_handOrn)
         #print(R_handOrn)
 
-        camInfo = p.getDebugVisualizerCamera()
-
-        kinectMat = p.getMatrixFromQuaternion(kinectOrn)
-        upVector = [0,0,1]
-        forwardVec = [kinectMat[0],kinectMat[3],kinectMat[6]]
-        #sideVec =  [camMat[1],camMat[4],camMat[7]]
-        kinectUpVec =  [kinectMat[2],kinectMat[5],kinectMat[8]]
-        kinectTarget = [kinectPos[0]+forwardVec[0]*100,kinectPos[1]+forwardVec[1]*100,kinectPos[2]+forwardVec[2]*100]
-        kinectUpTarget = [kinectPos[0]+kinectUpVec[0],kinectPos[1]+kinectUpVec[1],kinectPos[2]+kinectUpVec[2]]
-        kinectviewMat = p.computeViewMatrix(kinectPos, kinectTarget, kinectUpVec)
-        kinectprojMat = camInfo[3]
-        #p.getCameraImage(320,200,viewMatrix=viewMat,projectionMatrix=projMat, flags=p.ER_NO_SEGMENTATION_MASK, renderer=p.ER_BULLET_HARDWARE_OPENGL)
-        #p.getCameraImage(width,height,viewMatrix=kinectviewMat,projectionMatrix=kinectprojMat, renderer=p.ER_BULLET_HARDWARE_OPENGL)
-
-        kinect_img_arr = p.getCameraImage(width=self._kinect_rgb_width,
-                                          height=self._kinect_rgb_height,
-                                          viewMatrix=kinectviewMat,
-                                          projectionMatrix=kinectprojMat)
-        kinect_rgb = kinect_img_arr[2]
-        # HxWxC
-        kinect_np_img_arr = np.reshape(kinect_rgb, (self._kinect_rgb_height, self._kinect_rgb_width, 4))
-        # C : 4 → 3
-        kinect_np_img_arr = kinect_np_img_arr[:, :, :3]
-        # CxHxW
-        #kinect_np_img_arr = kinect_np_img_arr.transpose((2, 0, 1))
-        #kinect_flatten = kinect_np_img_arr.reshape(-1)
-
-        self._kinect_observation = kinect_np_img_arr
-        #print(self._kinect_observation.shape)
-
-        L_handMat = p.getMatrixFromQuaternion(L_handOrn)
-        upVector = [0,0,1]
-        forwardVec = [L_handMat[0],L_handMat[3],L_handMat[6]]
-        #sideVec =  [camMat[1],camMat[4],camMat[7]]
-        L_handUpVec =  [L_handMat[2],L_handMat[5],L_handMat[8]]
-        L_handTarget = [L_handPos[0]+forwardVec[0]*100,L_handPos[1]+forwardVec[1]*100,L_handPos[2]+forwardVec[2]*100]
-        L_handUpTarget = [L_handPos[0]+L_handUpVec[0],L_handPos[1]+L_handUpVec[1],L_handPos[2]+L_handUpVec[2]]
-        L_handviewMat = p.computeViewMatrix(L_handPos, L_handTarget, L_handUpVec)
-        L_handprojMat = camInfo[3]
-        #p.getCameraImage(320,200,viewMatrix=viewMat,projectionMatrix=projMat, flags=p.ER_NO_SEGMENTATION_MASK, renderer=p.ER_BULLET_HARDWARE_OPENGL)
-        L_hand_img_arr = p.getCameraImage(width=self._handcamera_width,
-                                          height=self._handcamera_height,
-                                          viewMatrix=L_handviewMat,
-                                          projectionMatrix=L_handprojMat)
-        L_hand_rgb = L_hand_img_arr[2]
-        # HxWxC
-        L_hand_np_img_arr = np.reshape(L_hand_rgb, (self._handcamera_height, self._handcamera_width, 4))
-        # C : 4 → 3
-        L_hand_np_img_arr = L_hand_np_img_arr[:, :, :3]
-        # CxHxW
-        #L_hand_np_img_arr = L_hand_np_img_arr.transpose((2, 0, 1))
-
-        self._L_observation = L_hand_np_img_arr
-
         #R_hand視点
         R_handMat = p.getMatrixFromQuaternion(R_handOrn)
         upVector = [0,0,1]
         forwardVec = [R_handMat[0],R_handMat[3],R_handMat[6]]
         #sideVec =  [camMat[1],camMat[4],camMat[7]]
         R_handUpVec =  [R_handMat[2],R_handMat[5],R_handMat[8]]
-        R_handTarget = [R_handPos[0]+forwardVec[0]*100,R_handPos[1]+forwardVec[1]*100,R_handPos[2]+forwardVec[2]*100]
+        #R_handTarget = [R_handPos[0]+forwardVec[0]*100,R_handPos[1]+forwardVec[1]*100,R_handPos[2]+forwardVec[2]*100]
+        blockPos, blockOrn = p.getBasePositionAndOrientation(self.blockUid)
+        R_handTarget = blockPos
         R_handUpTarget = [R_handPos[0]+R_handUpVec[0],R_handPos[1]+R_handUpVec[1],R_handPos[2]+R_handUpVec[2]]
         R_handviewMat = p.computeViewMatrix(R_handPos, R_handTarget, R_handUpVec)
-        R_handprojMat = camInfo[3]
-        #p.getCameraImage(320,200,viewMatrix=viewMat,projectionMatrix=projMat, flags=p.ER_NO_SEGMENTATION_MASK, renderer=p.ER_BULLET_HARDWARE_OPENGL)
-        R_hand_img_arr = p.getCameraImage(width=self._handcamera_width,
-                                          height=self._handcamera_height,
-                                          viewMatrix=R_handviewMat,
-                                          projectionMatrix=R_handprojMat)
-        R_hand_rgb = R_hand_img_arr[2]
-        # HxWxC
-        R_hand_np_img_arr = np.reshape(R_hand_rgb, (self._handcamera_height, self._handcamera_width, 4))
-        # C : 4 → 3
-        R_hand_np_img_arr = R_hand_np_img_arr[:, :, :3]
-        # CxHxW
-        #R_hand_np_img_arr = R_hand_np_img_arr.transpose((2, 0, 1))
 
-        self._R_observation = R_hand_np_img_arr
+        return R_handviewMat
+
+    def proximity_sensor(self):
 
         replaceLines=True
         numRays=11
@@ -353,11 +429,13 @@ class RobonyanGymEnv(gym.Env):
         rayTo=[]
         rayHitColor = [1,0,0]
         rayMissColor = [0,1,0]
-        rayLen = 0.05
+        rayLen = 0.5
         rayStartLen=0
         numforces=6
         rayTo_list = []
         rayIds_list = []
+        proximity_min = 4
+        proximity_max = 50
 
         #指向角10度の近接覚センサの配列
         for i in range(numforces):
@@ -430,50 +508,107 @@ class RobonyanGymEnv(gym.Env):
             L_proximity_finger = []
             R_proximity_finger = []
             for j in range(11):
-                L_proximity_finger.append(L_proximity_list[i][j][2])
-                R_proximity_finger.append(R_proximity_list[i][j][2])
-            # 11のrayの平均値で実装しているが、変更予定
-            L_proximity.append(sum(L_proximity_finger)/len(L_proximity_finger))
-            R_proximity.append(sum(R_proximity_finger)/len(R_proximity_finger))
+                L_proximity_clip = np.clip(L_proximity_list[i][j][2] * proximity_max,
+                                            proximity_min, proximity_max)
+                R_proximity_clip = np.clip(R_proximity_list[i][j][2] * proximity_max,
+                                            proximity_min, proximity_max)
+                L_proximity_norm = (L_proximity_clip-proximity_min)/(proximity_max-proximity_min)
+                R_proximity_norm = (R_proximity_clip-proximity_min)/(proximity_max-proximity_min)
+                #L_proximity_finger.append(L_proximity_list[i][j][2])
+                #R_proximity_finger.append(R_proximity_list[i][j][2])
+                L_proximity_finger.append(L_proximity_norm)
+                R_proximity_finger.append(R_proximity_norm)
+            # 11のrayのmin
+            #L_proximity.append(sum(L_proximity_finger)/len(L_proximity_finger))
+            #R_proximity.append(sum(R_proximity_finger)/len(R_proximity_finger))
+            L_proximity.append(min(L_proximity_finger))
+            R_proximity.append(min(R_proximity_finger))
 
-        self._L_proximity_observation = np.array(L_proximity)
-        self._R_proximity_observation = np.array(R_proximity)
+        L_proximity_observation = np.array(L_proximity)
+        R_proximity_observation = np.array(R_proximity)
 
-        #print(self._L_proximity_observation)
-        #print(self._L_proximity_observation.shape)
-        #print(self._R_proximity_observation)
-        #print(self._R_proximity_observation.shape)
+        return L_proximity_observation, R_proximity_observation
 
-        self._observation = (self._kinect_observation, self._R_proximity_observation)
-        # print(self._observation)
+    def force_sensor(self):
+        ContactPoints_L1 = p.getContactPoints(self._robonyan.robonyanUid, -1,
+                                            self._robonyan.force_L1, -1)
+        ContactPoints_L2 = p.getContactPoints(self._robonyan.robonyanUid, -1,
+                                            self._robonyan.force_L2, -1)
+        ContactPoints_L3 = p.getContactPoints(self._robonyan.robonyanUid, -1,
+                                            self._robonyan.force_L3, -1)
+        ContactPoints_R1 = p.getContactPoints(self._robonyan.robonyanUid, -1,
+                                            self._robonyan.force_R1, -1)
+        ContactPoints_R2 = p.getContactPoints(self._robonyan.robonyanUid, -1,
+                                            self._robonyan.force_R2, -1)
+        ContactPoints_R3 = p.getContactPoints(self._robonyan.robonyanUid, -1,
+                                            self._robonyan.force_R3, -1)
 
-        return self._observation
+
+        if len(ContactPoints_L1) > 0:
+            ContactPoints_L1 = ContactPoints_L1[0][9]
+            ContactPoints_L1 = np.random.normal(ContactPoints_L1, ContactPoints_L1 * 0.02)
+        else:
+            ContactPoints_L1 = 0
+        if len(ContactPoints_L2) > 0:
+            ContactPoints_L2 = ContactPoints_L2[0][9]
+            ContactPoints_L2 = np.random.normal(ContactPoints_L2, ContactPoints_L2 * 0.02)
+        else:
+            ContactPoints_L2 = 0
+        if len(ContactPoints_L3) > 0:
+            ContactPoints_L3 = ContactPoints_L3[0][9]
+            ContactPoints_L3 = np.random.normal(ContactPoints_L3, ContactPoints_L3 * 0.02)
+        else:
+            ContactPoints_L3 = 0
+        if len(ContactPoints_R1) > 0:
+            ContactPoints_R1 = ContactPoints_R1[0][9]
+            ContactPoints_R1 = np.random.normal(ContactPoints_R1, ContactPoints_R1 * 0.02)
+        else:
+            ContactPoints_R1 = 0
+        if len(ContactPoints_R2) > 0:
+            ContactPoints_R2 = ContactPoints_R2[0][9]
+            ContactPoints_R2 = np.random.normal(ContactPoints_R2, ContactPoints_R2 * 0.02)
+        else:
+            ContactPoints_R2 = 0
+        if len(ContactPoints_R3) > 0:
+            ContactPoints_R3 = ContactPoints_R3[0][9]
+            ContactPoints_R3 = np.random.normal(ContactPoints_R3, ContactPoints_R3 * 0.02)
+        else:
+            ContactPoints_R3 = 0
+
+
+        L_contactlist = [ContactPoints_L1, ContactPoints_L2, ContactPoints_L3]
+        R_contactlist = [ContactPoints_R1, ContactPoints_R2, ContactPoints_R3]
+
+        L_contact_observation = np.array(L_contactlist)
+        R_contact_observation = np.array(R_contactlist)
+
+        return L_contact_observation, R_contact_observation
+
+    def proprioception(self):
+        L_proprioception = []
+        R_proprioception = []
+        for i in range(12):
+            motor = self._robonyan.Lfinger_list[i]
+            joint_state = p.getJointState(self._robonyan.robonyanUid,motor)[0]
+            L_proprioception.append(joint_state)
+
+        for i in range(12):
+            motor = self._robonyan.Rfinger_list[i]
+            joint_state = p.getJointState(self._robonyan.robonyanUid,motor)[0]
+            R_proprioception.append(joint_state)
+
+        L_proprioception = np.array(L_proprioception)
+        R_proprioception = np.array(R_proprioception)
+
+        return L_proprioception, R_proprioception
+
+
+
 
     def step(self, action):
-        assert action.shape == (6,)
-        if (self._isDiscrete):
-            dv = 0.01
-            dx = [0, -dv, dv, 0, 0, 0, 0][action]
-            dy = [0, 0, 0, -dv, dv, 0, 0][action]
-            da = [0, 0, 0, 0, 0, -0.1, 0.1][action]
-            f = 0.3
-            realAction = [dx, dy, -0.002, da, f]
-        else:
-            dx = action[0]
-            dy = action[1]
-            dz = action[2]
-            #da = action[3] * 0.1
-            droll = action[3]
-            dpitch = action[4]
-            dyaw = action[5]
-            #f = 0.3
-            realAction = np.array([dx, dy, dz, droll, dpitch, dyaw])
-
-        return self.step2(realAction)
-
-    def step2(self, action):
+        assert action.shape == (12,)
         for i in range(self._actionRepeat): # self._actionRepeat = 1
-            self._robonyan.applyAction(action)
+            self._robonyan.graspAction(action)
             p.stepSimulation()
             if self._termination():
                 break
@@ -481,6 +616,9 @@ class RobonyanGymEnv(gym.Env):
             self._envStepCounter += 1
 
             self._observation = self.getExtendedObservation()
+            if abs((self._observation[1][3] + self._observation[1][4]) - self._observation[1][5]) <= 0.05:
+                if abs(np.sum(self._observation[1]) - 10) <= 0.05:
+                    self._grasp = True
             if self._renders:
                 time.sleep(self._timeStep)
 
@@ -496,13 +634,20 @@ class RobonyanGymEnv(gym.Env):
     def render(self, mode='human', close=False):
         if mode != "rgb_array":
             return np.array([])
-        base_pos, orn = self._p.getBasePositionAndOrientation(self._robonyan.robonyanUid)
-        view_matrix = self._p.computeViewMatrixFromYawPitchRoll(cameraTargetPosition=base_pos,
+        #base_pos, orn = self._p.getBasePositionAndOrientation(self.blockUid)
+
+        #block = p.getLinkState(self.blockUid, 0)
+        #blockPos, blockOrn = p.getBasePositionAndOrientation(self.blockUid)
+        #blockPos,blockOrn = block[0], block[1]
+
+        view_matrix = self._p.computeViewMatrixFromYawPitchRoll(cameraTargetPosition=self.blockPos,
                                                                 distance=self._cam_dist,
                                                                 yaw=self._cam_yaw,
                                                                 pitch=self._cam_pitch,
-                                                                roll=0,
+                                                                roll=self._cam_roll,
                                                                 upAxisIndex=2)
+        #view_matrix = self.kinectviewMat()
+        #view_matrix = self.L_handviewMat()
         proj_matrix = self._p.computeProjectionMatrixFOV(fov=60,
                                                          aspect=float(RENDER_WIDTH) / RENDER_HEIGHT,
                                                          nearVal=0.1,
@@ -516,48 +661,22 @@ class RobonyanGymEnv(gym.Env):
         rgb_array = rgb_array[:, :, :3]
         return rgb_array
 
-    def _termination(self): # リーチング後の動作
-        #print("self._envStepCounter")
-        #print(self._envStepCounter)
-        # self._envStepCounterがmaxStepsを超えたら終了
-        if (self.terminated or self._envStepCounter > maxSteps):
-            self._observation = self.getExtendedObservation()
-            return True
-
-        L_pregraspPos, R_pregraspPos = self._robonyan.getPregraspPosition()
-
-        blockPos, blockOrn = p.getBasePositionAndOrientation(self.blockUid)
-        blockPos = np.array(blockPos)
-
-        d = np.linalg.norm(R_pregraspPos - blockPos)
-
-
-        # block と hand の距離が一定以下になったら終了
-        if d <= 0.005:  #(actualEndEffectorPos[2] <= -0.43):
-            self.terminated = 1
-            #print("closing gripper, attempting grasp")
-            #start grasp and terminate
-
-
-            self._observation = self.getExtendedObservation()
-            return True
-        return False
+    def _termination(self):
+        """Terminates the episode if we have tried to grasp or if we are above
+        maxSteps steps.
+        """
+        return self._grasp or self._envStepCounter >= maxSteps
 
     def _reward(self):
 
-        L_pregraspPos, R_pregraspPos = self._robonyan.getPregraspPosition()
-
-        blockPos, blockOrn = p.getBasePositionAndOrientation(self.blockUid)
-        blockPos = np.array(blockPos)
-
-        d = np.linalg.norm(R_pregraspPos - blockPos)
-
-        # reward = -1000
-        reward = 1 - (d / self.d_max)
+        if self._grasp:
+            reward +=1
+            return reward
 
 
         #print("reward")
         #print(reward)
+        reward = 0
         return reward
 
     if parse_version(gym.__version__) < parse_version('0.9.6'):

@@ -39,7 +39,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 #リプレイメモリー
 Transition = namedtuple('Transition',
-                        ('img_state', 'prox_state', 'action', 'img_next_state', 'prox_next_state' , 'reward' ,'done'))
+                        ('img_state', 'state_1d', 'action', 'img_next_state', 'next_state_1d' , 'reward' ,'done'))
 
 class ReplayMemory(object):
     def __init__(self, capacity):
@@ -185,24 +185,24 @@ def optimize_model():
     transitions = memory.sample(BATCH_SIZE)
     batch = Transition(*zip(*transitions))
 
-    #batchを一括して処理するためtensorのリストを2次元テンソルに変換
+    #batch作成
     img_state_batch = torch.cat(batch.img_state)
-    prox_state_batch = torch.cat(batch.prox_state)
+    state_1d_batch = torch.cat(batch.state_1d)
     action_batch = torch.cat(batch.action)
     reward_batch = torch.cat(batch.reward)
     img_next_state_batch = torch.cat(batch.img_next_state)
-    prox_next_state_batch = torch.cat(batch.prox_next_state)
+    next_state_1d_batch = torch.cat(batch.next_state_1d)
     done_batch = torch.cat(batch.done)
 
     reward_batch = reward_batch.unsqueeze(1)
     done_batch = done_batch.unsqueeze(1)
 
     #Qネットのloss関数計算
-    next_actions = policy_target_net(img_next_state_batch, prox_next_state_batch)
-    next_Q_values =q_target_net(img_next_state_batch, prox_next_state_batch, next_actions)
+    next_actions = policy_target_net(img_next_state_batch, next_state_1d_batch)
+    next_Q_values =q_target_net(img_next_state_batch, next_state_1d_batch, next_actions)
     expected_Q_values = (next_Q_values * GAMMA)*(1.0-done_batch) + reward_batch
 
-    Q_values =  q_net(img_state_batch, prox_next_state_batch, action_batch)
+    Q_values =  q_net(img_state_batch, next_state_1d_batch, action_batch)
 
     #Qネットのloss関数
     q_loss = F.mse_loss(Q_values,expected_Q_values)
@@ -215,8 +215,8 @@ def optimize_model():
     q_optimizer.step()
 
     #policyネットのloss関数
-    actions = policy_net(img_state_batch, prox_state_batch)
-    p_loss = -q_net(img_state_batch, prox_state_batch, actions).mean()
+    actions = policy_net(img_state_batch, state_1d_batch)
+    p_loss = -q_net(img_state_batch, state_1d_batch, actions).mean()
 
     #policyネットの学習
     p_optimizer.zero_grad()
@@ -260,24 +260,24 @@ env.render(mode="human")
 #action,observationの要素数取得
 n_actions = env.action_space.shape[0]
 init_obs = env.reset()
-init_img = init_obs[0]
-init_prox = init_obs[1]
+#init_img = init_obs[0]
+init_1d = init_obs[1]
 #img_resize = init_img.resize((320, 180))
 #img_height , img_width, _ = img_resize.shape
 img_height = 128
 img_width = 128
-n_prox = init_prox.shape
+n_obs_1d = init_1d.shape
 
 #print('num actions,observations',n_actions,init_img.shape,n_prox )
 
 
 #ネットワーク
 #policyネットとそのtargetネット
-policy_net = MultiActer(img_height, img_width, n_prox, n_actions).to(device)
-policy_target_net = MultiActer(img_height, img_width, n_prox, n_actions).to(device)
+policy_net = MultiActer(img_height, img_width, n_obs_1d, n_actions).to(device)
+policy_target_net = MultiActer(img_height, img_width, n_obs_1d, n_actions).to(device)
 #Qネットとそのtargetネット
-q_net = MultiCritic(img_height, img_width, n_prox, n_actions).to(device)
-q_target_net = MultiCritic(img_height, img_width, n_prox, n_actions).to(device)
+q_net = MultiCritic(img_height, img_width, n_obs_1d, n_actions).to(device)
+q_target_net = MultiCritic(img_height, img_width, n_obs_1d, n_actions).to(device)
 #学習用optimizer生成
 p_optimizer = optim.Adam(policy_net.parameters(),lr=1e-3)
 q_optimizer = optim.Adam(q_net.parameters(),lr=3e-3, weight_decay=0.0001)
@@ -307,7 +307,10 @@ num_episodes = 1000
 max_step = 1000
 
 rewards = []
-total_numsteps = 0
+mean_rewards = []
+
+num_epsodes_list = []
+#total_numsteps = 0
 updates = 0
 
 best_reward = None
@@ -320,13 +323,14 @@ for i_episode in range(num_episodes):
     img_state = np.ascontiguousarray(img_state, dtype=np.float32) / 255
     tensor_img_state = torch.from_numpy(img_state)
     tensor_img_state = resize(tensor_img_state).unsqueeze(0).to(device)
-    prox_state = observation[1]
-    tensor_prox_state = torch.tensor(prox_state,device=device,dtype=torch.float)
-    tensor_prox_state = torch.unsqueeze(tensor_prox_state, 0)
+    state_1d = observation[1]
+    tensor_state_1d = torch.tensor(state_1d,device=device,dtype=torch.float)
+    tensor_state_1d = torch.unsqueeze(tensor_state_1d, 0)
 
     done = False
     episode_reward = 0.0
     t = 0
+    num_epsodes_list.append(i_episode + 1)
 
     noise =np.array([random.uniform(-0.5,0.5) for i in range(n_actions)],dtype = np.float)
     theta = 0.08
@@ -337,10 +341,10 @@ for i_episode in range(num_episodes):
         #指令値生成------------------------------------
         sample = random.random()
 
-        d = (1 - t/max_step)
+        #d = (1 - t/max_step)
 
         with torch.no_grad():
-            action = policy_net(tensor_img_state, tensor_prox_state)
+            action = policy_net(tensor_img_state, tensor_state_1d)
             action = action.cpu().data.numpy()
 
         #最後は純粋にネットワークのデータを取得するためノイズ無し-------------------
@@ -363,8 +367,12 @@ for i_episode in range(num_episodes):
         img_next_state = next_observation[0]
         img_next_state = img_next_state.transpose((2, 0, 1))
         img_next_state = np.ascontiguousarray(img_state, dtype=np.float32) / 255
-        prox_next_state = next_observation[1]
-        reward = reward * d
+        next_state_1d = next_observation[1]
+        #reward = reward * d
+        # impact_compute
+        impact_1 = max(0, (next_state_1d[3] - state_1d[3]))
+        impact_2 = max(0, (next_state_1d[4] - state_1d[4]))
+        impact_3 = max(0, (next_state_1d[5] - state_1d[5]))
         episode_reward = episode_reward + reward
 
         #学習用にメモリに保存--------------------------
@@ -373,17 +381,17 @@ for i_episode in range(num_episodes):
         tensor_acton = torch.unsqueeze(tensor_action, 0)
         tensor_img_next_state = torch.from_numpy(img_next_state)
         tensor_img_next_state = resize(tensor_img_next_state).unsqueeze(0).to(device)
-        tensor_prox_next_state = torch.tensor(prox_next_state,device=device,dtype=torch.float)
-        tensor_prox_next_state = torch.unsqueeze(tensor_prox_next_state, 0)
+        tensor_next_state_1d = torch.tensor(next_state_1d,device=device,dtype=torch.float)
+        tensor_next_state_1d = torch.unsqueeze(tensor_next_state_1d, 0)
         #tensor_next_observation = torch.tensor(next_observation,device=device,dtype=torch.float)
         tensor_reward = torch.tensor([reward],device=device,dtype=torch.float)
         tensor_done =  torch.tensor([done],device=device,dtype=torch.float)
-        memory.push(tensor_img_state, tensor_prox_state, tensor_action, tensor_img_next_state, tensor_prox_next_state, tensor_reward,tensor_done)
+        memory.push(tensor_img_state, tensor_state_1d, tensor_action, tensor_img_next_state, tensor_next_state_1d, tensor_reward,tensor_done)
 
         #observation(state)更新------------------------
         #observation = next_observation
         tensor_img_state = tensor_img_next_state
-        tensor_prox_state = tensor_prox_next_state
+        tensor_state_1d = tensor_next_state_1d
 
 
         #学習してpolicy_net,target_neを更新
@@ -394,6 +402,7 @@ for i_episode in range(num_episodes):
 
 
         #時間を進める----------------------------------
+
         t += 1
         # end while loop ------------------------------
 
@@ -402,58 +411,68 @@ for i_episode in range(num_episodes):
     writer.add_scalar('reward/train', episode_reward, i_episode)
     rewards.append(episode_reward)
 
-    if (i_episode % 10 == 0) or (i_episode == num_episodes - 1):
+    if ((i_episode + 1) % 10 == 0) or (i_episode == num_episodes - 1):
         #state = torch.Tensor([env.reset()])
+        """
+        #test
         observation = env.reset()
         img_state = observation[0]
         img_state = img_state.transpose((2, 0, 1))
         img_state = np.ascontiguousarray(img_state, dtype=np.float32) / 255
         tensor_img_state = torch.from_numpy(img_state)
         tensor_img_state = resize(tensor_img_state).unsqueeze(0).to(device)
-        prox_state = observation[1]
-        tensor_prox_state = torch.tensor(prox_state,device=device,dtype=torch.float)
-        tensor_prox_state = torch.unsqueeze(tensor_prox_state, 0)
+        state_1d = observation[1]
+        tensor_state_1d = torch.tensor(state_1d,device=device,dtype=torch.float)
+        tensor_state_1d = torch.unsqueeze(tensor_state, 0)
         episode_reward = 0
         t = 0
-        while True:
-            d = (1 - t/max_step)
+        while not done and t < max_step:
+            #d = (1 - t/max_step)
             action = policy_net(tensor_img_state, tensor_prox_state)
             action = action.cpu().data.numpy()
             next_observation, reward, done, _ = env.step(action[0])
-            reward = reward * d
+            #reward = reward * d
             img_next_state = next_observation[0]
             img_next_state = img_next_state.transpose((2, 0, 1))
             img_next_state = np.ascontiguousarray(img_next_state, dtype=np.float32) / 255
-            prox_next_state = next_observation[1]
+            next_state_1d = next_observation[1]
             tensor_img_next_state = torch.from_numpy(img_next_state)
             tensor_img_state = resize(tensor_img_next_state).unsqueeze(0).to(device)
-            tensor_prox_next_state = torch.tensor(prox_next_state,device=device,dtype=torch.float)
-            tensor_prox_next_state = torch.unsqueeze(tensor_prox_next_state, 0)
+            tensor_next_state_1d = torch.tensor(next_state_1d,device=device,dtype=torch.float)
+            tensor_next_state_1d = torch.unsqueeze(tensor_next_state_1d, 0)
             episode_reward += reward
 
             #next_state = torch.Tensor([next_state])
 
             #state = next_state
             tensor_img_state = tensor_img_next_state
-            tensor_prox_state = tensor_prox_next_state
+            tensor_state_1d = tensor_next_state_1d
 
             t += 1
 
-            if done:
-                break
+            #if done:
+                #break
 
         writer.add_scalar('reward/test', episode_reward, i_episode)
+        """
 
         if best_reward is None or best_reward < episode_reward:
             if best_reward is not None:
                 print("Best reward updated: %.3f -> %.3f" % (best_reward, episode_reward))
-                name = "best_%+.3f_%d.dat" % (episode_reward, i_episode)
+                name = "best_%+.3f_%d.pth" % (episode_reward, i_episode)
                 fname = os.path.join(save_path, name)
                 torch.save(policy_net.state_dict(), fname)
             best_reward = episode_reward
 
-        rewards.append(episode_reward)
+        #rewards.append(episode_reward)
         mean_reward = np.mean(rewards[-10:])
+        mean_rewards.append(mean_reward)
         print("Episode: {}, total numsteps: {}, reward: {}, average reward: {}".format(i_episode, t, rewards[-1], np.mean(rewards[-10:])))
 
   # end for loop --------------------------------------
+
+  # グラフ作成
+  pit.plot(num_epsodes_list, rewards)
+  plt.xlabel('num_episodes')
+  plt.ylabel('reward')
+  plt.show()
