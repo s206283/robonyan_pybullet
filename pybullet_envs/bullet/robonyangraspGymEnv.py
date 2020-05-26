@@ -42,7 +42,7 @@ class RobonyanGraspGymEnv(gym.Env):
         #self._cam_dist = 1.3
         #self._cam_yaw = 180
         #self._cam_pitch = -40
-        self._cam_dist = 0.2
+        self._cam_dist = 0.3
         #self._cam_yaw = 45
         self._cam_roll = 45
         self._cam_yaw = 180
@@ -138,14 +138,15 @@ class RobonyanGraspGymEnv(gym.Env):
         p.resetSimulation()
         p.setPhysicsEngineParameter(numSolverIterations=150)
         p.setTimeStep(self._timeStep)
-        #p.loadURDF(os.path.join(self._urdfRoot, "plane.urdf"), [0, 0, -0.3])
-        p.loadURDF("plane.urdf", [0, 0, -0.3], useFixedBase=True)
+        p.loadURDF(os.path.join(self._urdfRoot, "plane.urdf"), [0, 0, -0.3])
+        #p.loadURDF("plane.urdf", [0, 0, -0.3], useFixedBase=True)
 
         p.loadURDF(os.path.join(self._urdfRoot, "table/table.urdf"), 1.000000, 0.00000, -0.050000,
                    0.000000, 0.000000, 0.707106781187, .707106781187)
 
         xpos = 0.8 + 0.1 * random.random()
-        ypos = 0 - 0.6 * random.random()
+        #ypos = 0 - 0.6 * random.random()
+        ypos = 0 - 0.1 * random.random()
         ang = 3.1415925438 * random.random()
         orn = p.getQuaternionFromEuler([0, 0, ang])
 
@@ -177,7 +178,7 @@ class RobonyanGraspGymEnv(gym.Env):
         #blockPos = np.array(blockPos)
 
         # noiseを加える
-        R_position = [blockPos[0], blockPos[1], blockPos[2] + 0.1, 0, 0.785398, 0]
+        R_position = [blockPos[0], blockPos[1], blockPos[2] + 0.2, 0, 0.785398, 0]
         L_position = [blockPos[0], blockPos[1] + 0.4, blockPos[2] + 0.1, 0, 0, -1.5708]
 
         self._robonyan.resetHandPosition(R_position, L_position)
@@ -676,13 +677,18 @@ class RobonyanGraspGymEnv(gym.Env):
             self._close = True
             return reward
 
+        if (self._observation[1][3] + self._observation[1][4] + self._observation[1][5]) < 0.5:
+            return reward
+
         if abs((self._observation[1][3] + self._observation[1][4]) - self._observation[1][5]) < 0.1 :
-            reward = 1 - (abs(self._observation[1][5] - 5) / 5)**0.4
+            a = abs(self._observation[1][5] - 5)
+            b = abs((self._observation[1][3] + self._observation[1][4]) - self._observation[1][5])
+            reward = 1 - (0.5(min(a / 5, 1) + b / 20))**0.4
 
         #print("reward")
         #print(reward)
 
-        if reward > 0.8:
+        if reward > 0.9:
             self._grasp = True
         return reward
 
