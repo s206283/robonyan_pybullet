@@ -298,6 +298,7 @@ class Robonyan:
                                                 L_orn, self.ll, self.ul, self.jr, self.rp)
         self.JointControl(jointPoses)
 
+        """
         R_state = p.getLinkState(self.robonyanUid, self.R_EndEffectorIndex)
         R_EndEffectorPos = R_state[0]
 
@@ -313,8 +314,9 @@ class Robonyan:
         R_EndEffectorPos = R_state[0]
         pos = R_EndEffectorPos + R_d
         pos = pos.tolist()
+        """
 
-        jointPoses = p.calculateInverseKinematics(self.robonyanUid, self.R_EndEffectorIndex, pos,
+        jointPoses = p.calculateInverseKinematics(self.robonyanUid, self.R_EndEffectorIndex, R_pos,
                                                 R_orn, self.ll, self.ul, self.jr, self.rp)
 
         self.JointControl(jointPoses)
