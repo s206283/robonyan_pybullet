@@ -23,7 +23,7 @@ class Robonyan:
         self.timeStep = timeStep
         self.maxVelocity = .35
         self.maxForce = 200.
-        self.fingerForce = 2.5
+        self.fingerForce = 2
         #self.fingerAForce = 2
         #self.fingerBForce = 2.5
         #self.fingerTipForce = 2
