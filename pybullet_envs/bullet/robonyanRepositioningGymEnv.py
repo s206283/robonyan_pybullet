@@ -46,8 +46,7 @@ class RobonyanRepositioningGymEnv(gym.Env):
         #self._cam_yaw = 45
         self._cam_roll = 0
         self._cam_yaw = 90
-        self._cam_pitch = 45
-        self._cam_pitch = 0
+        self._cam_pitch = -40
         #self._width = 341
         #self._height = 256
         self._kinect_rgb_width = 1920
@@ -132,6 +131,7 @@ class RobonyanRepositioningGymEnv(gym.Env):
         self.terminated = 0
         self._repositioning = False
         self._env_step = 0
+        self.penalty = 0
         #physicsClient = p.connect(p.GUI)
         p.setAdditionalSearchPath(self._urdfRoot)
         p.resetSimulation()
@@ -179,9 +179,9 @@ class RobonyanRepositioningGymEnv(gym.Env):
 
         blockPos, blockOrn = p.getBasePositionAndOrientation(self.blockUid)
         self.blockPos, self.blockOrn = blockPos, blockOrn
+        self.ViewPos = [self._goalx, self._goaly, self.blockPos[2]]
         #blockPos = np.array(blockPos)
 
-        # noiseを加える
         R_position = [self._goalx, self._goaly, blockPos[2] + 0.2, 0, 0.785398, 0]
         L_position = [blockPos[0], blockPos[1] + 0.6, blockPos[2] + 0.1, 0, 0, -1.5708]
 
@@ -190,6 +190,7 @@ class RobonyanRepositioningGymEnv(gym.Env):
         p.stepSimulation()
 
         self._observation = self.getExtendedObservation()
+        self._force = [self._observation[1][3], self._observation[1][4], self._observation[1][5]]
         return np.array(self._observation)
 
     def __del__(self):
@@ -619,6 +620,7 @@ class RobonyanRepositioningGymEnv(gym.Env):
             self._envStepCounter += 1
 
             self._observation = self.getExtendedObservation()
+            self._nextforce = [self._observation[1][3], self._observation[1][4], self._observation[1][5]]
 
             if self._renders:
                 time.sleep(self._timeStep)
@@ -628,6 +630,8 @@ class RobonyanRepositioningGymEnv(gym.Env):
 
             reward = self._reward()
             done = self._termination()
+
+            self._nextforce = self._force
 
             #print("len=%r" % len(self._observation))
 
@@ -642,7 +646,7 @@ class RobonyanRepositioningGymEnv(gym.Env):
         #blockPos, blockOrn = p.getBasePositionAndOrientation(self.blockUid)
         #blockPos,blockOrn = block[0], block[1]
 
-        view_matrix = self._p.computeViewMatrixFromYawPitchRoll(cameraTargetPosition=self.blockPos,
+        view_matrix = self._p.computeViewMatrixFromYawPitchRoll(cameraTargetPosition=self.ViewPos,
                                                                 distance=self._cam_dist,
                                                                 yaw=self._cam_yaw,
                                                                 pitch=self._cam_pitch,
@@ -664,10 +668,17 @@ class RobonyanRepositioningGymEnv(gym.Env):
         return rgb_array
 
     def _termination(self):
-        """Terminates the episode if we have tried to grasp or if we are above
-        maxSteps steps.
-        """
+
         return self._repositioning or self._envStepCounter >= maxSteps
+
+    def impact_penalty(self, ram1, ram2, impact):
+        r = 0
+        for i in range(3):
+            a = 1 / (1 + math.e** (ram1 * (impact[i] - ram2)))
+            r += (1 - a)
+
+        self.penalty += -r
+        return self.penalty
 
     def _reward(self):
 
@@ -680,7 +691,16 @@ class RobonyanRepositioningGymEnv(gym.Env):
         if theta > 3.1415925438:
             theta -= 3.1415925438
 
-        reward = 1 - 0.5 * (math.tanh(d) + theta/3.1415925438)
+        reward = 1 - 0.5 * (math.tanh(d * 10) + theta/3.1415925438)
+
+        impact_1 = max(0, (self._nextforce[0] - self._force[0]))
+        impact_2 = max(0, (self._nextforce[1] - self._force[1]))
+        impact_3 = max(0, (self._nextforce[2] - self._force[2]))
+        impact = [impact_1, impact_2, impact_3]
+
+        impact_penalty = self.impact_penalty(2, 2, impact)
+
+        reward += impact_penalty
 
         if reward > 0.9:
             self._repositioning = True

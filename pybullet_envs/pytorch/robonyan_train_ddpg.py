@@ -12,6 +12,8 @@ import random
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
+import pandas as pd
+from pandas import Series, DataFrame
 from collections import namedtuple
 from itertools import count
 from PIL import Image
@@ -31,8 +33,10 @@ writer = SummaryWriter()
 env = RobonyanGymEnv(renders=True, isDiscrete=False)
 
 save_path = os.path.join("saves", "ddpg")
+log_path = os.path.join("saves", "log")
 
 os.makedirs(save_path, exist_ok=True)
+os.makedirs(log_path, exist_ok=True)
 
 # if gpu is to be used
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -64,9 +68,45 @@ class ReplayMemory(object):
         self.memory = []
         self.position = 0
 
+class DDPGActor(nn.Module):
+    def __init__(self, obs_size, act_size):
+        super(DDPGActor, self).__init__()
+
+        self.net = nn.Sequential(
+            nn.Linear(obs_size, 400),
+            nn.ReLU(),
+            nn.Linear(400, 300),
+            nn.ReLU(),
+            nn.Linear(300, act_size),
+            nn.Tanh()
+        )
+
+    def forward(self, x):
+        return self.net(x)
+
+
+class DDPGCritic(nn.Module):
+    def __init__(self, obs_size, act_size):
+        super(DDPGCritic, self).__init__()
+
+        self.obs_net = nn.Sequential(
+            nn.Linear(obs_size, 400),
+            nn.ReLU(),
+        )
+
+        self.out_net = nn.Sequential(
+            nn.Linear(400 + act_size, 300),
+            nn.ReLU(),
+            nn.Linear(300, 1)
+        )
+
+    def forward(self, x, a):
+        obs = self.obs_net(x)
+        return self.out_net(torch.cat([obs, a], dim=1))
+
 class MultiActer(nn.Module):
 
-    def __init__(self, img_h, img_w, prox_size, act_size):
+    def __init__(self, img_h, img_w, oneD_size, act_size):
 
         super(MultiActer, self).__init__()
 
@@ -95,11 +135,13 @@ class MultiActer(nn.Module):
         self.full_connection = nn.Sequential(
             nn.Linear(in_features=conv_input_size+3, out_features=1024), # '+3' in_oneDの3ユニット分を追加
             nn.ReLU(),
-            nn.Dropout(),
-            nn.Linear(in_features=1024, out_features=act_size, bias=False)
+            nn.Linear(1024, 300),
+            nn.ReLU(),
+            nn.Linear(300, act_size),
+            nn.Tanh()
         )
 
-    def forward(self, img, prox):
+    def forward(self, img, oneD):
 
         conv_input_size = 13 * 13 * 32
 
@@ -110,7 +152,7 @@ class MultiActer(nn.Module):
         x = x.view(x.size(0), conv_input_size)
 
         # 1次元化した畳み込み層のからの出力と2つめの入力を結合
-        x = torch.cat([x, prox], dim=1)
+        x = torch.cat([x, oneD], dim=1)
 
         # 全結合層に入力して計算
         y = self.full_connection(x)
@@ -118,7 +160,7 @@ class MultiActer(nn.Module):
         return y
 
 class MultiCritic(nn.Module):
-    def __init__(self, img_h, img_w, prox_size, act_size):
+    def __init__(self, img_h, img_w, oneD_size, act_size):
 
         super(MultiCritic, self).__init__()
 
@@ -145,7 +187,7 @@ class MultiCritic(nn.Module):
         #self.head = nn.Linear(conv_input_size, outputs)
 
         self.obs_net = nn.Sequential(
-            nn.Linear(in_features=conv_input_size+3, out_features=1024), # '+3' in_oneDの3ユニット分を追加
+            nn.Linear(in_features=conv_input_size+oneDsize, out_features=1024), # '+3' in_oneDの3ユニット分を追加
             nn.ReLU(),
         )
 
@@ -155,7 +197,7 @@ class MultiCritic(nn.Module):
             nn.Linear(300, 1)
         )
 
-    def forward(self, img, prox, a):
+    def forward(self, img, oneD, a):
 
         conv_input_size = 13 * 13 * 32
 
@@ -166,7 +208,7 @@ class MultiCritic(nn.Module):
         x = x.view(x.size(0), conv_input_size)
 
         # 1次元化した畳み込み層のからの出力と2つめの入力を結合
-        x = torch.cat([x, prox], dim=1)
+        x = torch.cat([x, oneD], dim=1)
 
         # 全結合層に入力して計算
         x = self.obs_net(x)
@@ -206,6 +248,7 @@ def optimize_model():
 
     #Qネットのloss関数
     q_loss = F.mse_loss(Q_values,expected_Q_values)
+    #writer.add_scalar('q_loss/train', q_loss, i_episode + 1)
 
     #Qネットの学習
     q_optimizer.zero_grad()
@@ -217,6 +260,7 @@ def optimize_model():
     #policyネットのloss関数
     actions = policy_net(img_state_batch, state_1d_batch)
     p_loss = -q_net(img_state_batch, state_1d_batch, actions).mean()
+    #writer.add_scalar('p_loss/train', p_loss, i_episode + 1)
 
     #policyネットの学習
     p_optimizer.zero_grad()
@@ -254,6 +298,14 @@ def load_model(self, actor_path, critic_path):
         policy_net.load_state_dict(torch.load(actor_path))
     if critic_path is not None:
         q_net.load_state_dict(torch.load(critic_path))
+
+def impact_penalty(self, ram1, ram2, impact):
+    r = 0
+    for i in range(3):
+        a = 1 / (1 + math.e** (ram1 * (impact[i] - ram2)))
+        r += (1 - a)*impact[i]
+
+    r = -r
 
 env.render(mode="human")
 
@@ -304,10 +356,10 @@ SIGMA_DECAY = 800 #この回数で約30%まで減衰
 #学習数。num_epsode=200を変更する。
 num_episodes = 1000
 
-max_step = 1000
+max_step = 500
 
 rewards = []
-mean_rewards = []
+#mean_rewards = []
 
 num_epsodes_list = []
 #total_numsteps = 0
@@ -373,7 +425,11 @@ for i_episode in range(num_episodes):
         impact_1 = max(0, (next_state_1d[3] - state_1d[3]))
         impact_2 = max(0, (next_state_1d[4] - state_1d[4]))
         impact_3 = max(0, (next_state_1d[5] - state_1d[5]))
-        episode_reward = episode_reward + reward
+        impact = [impact_1, impact_2, impact_3]
+        impact_penalty = self.impact_penalty(2, 2, impact)
+
+        #episode_reward = episode_reward + reward
+        episode_reward = reward
 
         #学習用にメモリに保存--------------------------
         #tensor_observation = torch.tensor(observation,device=device,dtype=torch.float)
@@ -392,15 +448,10 @@ for i_episode in range(num_episodes):
         #observation = next_observation
         tensor_img_state = tensor_img_next_state
         tensor_state_1d = tensor_next_state_1d
-
-
         #学習してpolicy_net,target_neを更新
         optimize_model()
         #データ保存------------------------------------
         #if i_episode == num_episodes -1 :
-
-
-
         #時間を進める----------------------------------
 
         t += 1
@@ -408,7 +459,7 @@ for i_episode in range(num_episodes):
 
 
     #rewards.append(episode_reward)
-    writer.add_scalar('reward/train', episode_reward, i_episode)
+    writer.add_scalar('reward/train', episode_reward, i_episode + 1)
     rewards.append(episode_reward)
 
     if ((i_episode + 1) % 10 == 0) or (i_episode == num_episodes - 1):
@@ -465,8 +516,8 @@ for i_episode in range(num_episodes):
             best_reward = episode_reward
 
         #rewards.append(episode_reward)
-        mean_reward = np.mean(rewards[-10:])
-        mean_rewards.append(mean_reward)
+        #mean_reward = np.mean(rewards[-10:])
+        #mean_rewards.append(mean_reward)
         print("Episode: {}, total numsteps: {}, reward: {}, average reward: {}".format(i_episode, t, rewards[-1], np.mean(rewards[-10:])))
 
   # end for loop --------------------------------------
@@ -476,3 +527,10 @@ for i_episode in range(num_episodes):
   plt.xlabel('num_episodes')
   plt.ylabel('reward')
   plt.show()
+
+  data = {'reward':rewards, 'num_episodes':num_epsodes_list}
+  df = Dataframe(data)
+
+  path = os.path.join(log_path, "reward.csv")
+
+  df.to_csv(path)
