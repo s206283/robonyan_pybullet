@@ -15,7 +15,7 @@ parser.add_argument('--env-name', default="HalfCheetah-v2",
 parser.add_argument('--policy', default="Gaussian",
                     help='Policy Type: Gaussian | Deterministic (default: Gaussian)')
 parser.add_argument('--observation_type', default="from_state",
-                    help='observation Type: from_state | from_pixel (default: from_state)')
+                    help='observation Type: from_state | from_pixels (default: from_state)')
 parser.add_argument('--eval', type=bool, default=True,
                     help='Evaluates a policy a policy every 10 episode (default: True)')
 parser.add_argument('--gamma', type=float, default=0.99, metavar='G',

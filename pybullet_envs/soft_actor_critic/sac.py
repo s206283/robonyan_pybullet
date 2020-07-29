@@ -24,7 +24,7 @@ class SAC(object):
         if self.observation_type = "from_state":
             self.critic = QNetwork(num_inputs, action_space.shape[0], args.hidden_size).to(device=self.device)
         else:
-            self.critic = Conv_QNetwork(32, 32, num_inputs, action_space.shape[0], args.hidden_size).to(self.device)
+            self.critic = Conv_QNetwork(32, 32, 3, action_space.shape[0], args.hidden_size).to(self.device)
         self.critic_optim = Adam(self.critic.parameters(), lr=args.lr)
 
         if self.observation_type = "from_state":
