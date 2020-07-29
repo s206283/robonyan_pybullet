@@ -7,8 +7,10 @@ from collections import deque
 
 class Observer():
 
-    def __init__(self, env, args):
+    def __init__(self, env, frame_count, args):
         self._env = env
+        self.frame_count = frame_count
+        self._frames = deque([], maxlen=frame_count)
         self.observation_type = args.observation_type
 
     @property
@@ -24,7 +26,10 @@ class Observer():
             return self._env.reset()
         else:
             self._env.reset()
-            return self.transform(self._env.render(mode='rgb_array').transpose((2, 0, 1)))
+            pixel = self.transform(self._env.render(mode='rgb_array').transpose((2, 0, 1)))
+            for _ in range(self._k):
+                self._frames.append(pixel)
+            return self._get_obs()
 
     def render(self):
         self.env.render(mode="human")
@@ -35,7 +40,8 @@ class Observer():
             return state, reward, done, info
         else:
             pixel = self.transform(self._env.render('rgb_array').transpose((2, 0, 1)))
-            return pixel, reward, done, info
+            self._frames.append(pixel)
+            return self._get_obs(), reward, done, info
 
     def transform(self, pixel):
         pixel = Image.fromarray(pixel)
@@ -44,3 +50,7 @@ class Observer():
         normalized = resize / 255.0
 
         return normalized
+
+    def _get_obs(self):
+        assert len(self._frames) == self._k
+        return np.concatenate(list(self._frames), axis=0)

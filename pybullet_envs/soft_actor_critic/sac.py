@@ -21,16 +21,16 @@ class SAC(object):
 
         self.observation_type = args.observation_type
 
-        if self.observation_type = "from_state":
+        if self.observation_type == "from_state":
             self.critic = QNetwork(num_inputs, action_space.shape[0], args.hidden_size).to(device=self.device)
         else:
-            self.critic = Conv_QNetwork(32, 32, 3, action_space.shape[0], args.hidden_size).to(self.device)
+            self.critic = Conv_QNetwork(32, 32, 9, action_space.shape[0], args.hidden_size).to(self.device)
         self.critic_optim = Adam(self.critic.parameters(), lr=args.lr)
 
         if self.observation_type = "from_state":
             self.critic_target = QNetwork(num_inputs, action_space.shape[0], args.hidden_size).to(self.device)
         else:
-            self.critic_target = Conv_QNetwork(32, 32, num_inputs, action_space.shape[0], args.hidden_size).to(self.device)
+            self.critic_target = Conv_QNetwork(32, 32, 9, action_space.shape[0], args.hidden_size).to(self.device)
         hard_update(self.critic_target, self.critic)
 
         if self.policy_type == "Gaussian":
@@ -43,6 +43,16 @@ class SAC(object):
             self.policy = GaussianPolicy(num_inputs, action_space.shape[0], args.hidden_size, action_space).to(self.device)
             self.policy_optim = Adam(self.policy.parameters(), lr=args.lr)
 
+        else if self.policy_type == "Conv_Gaussian":
+            # Target Entropy = −dim(A) (e.g. , -6 for HalfCheetah-v2) as given in the paper
+            if self.automatic_entropy_tuning is True:
+                self.target_entropy = -torch.prod(torch.Tensor(action_space.shape).to(self.device)).item()
+                self.log_alpha = torch.zeros(1, requires_grad=True, device=self.device)
+                self.alpha_optim = Adam([self.log_alpha], lr=args.lr)
+
+            self.policy = GaussianPolicy(32, 32, 9, action_space.shape[0], args.hidden_size, action_space).to(self.device)
+            self.policy_optim = Adam(self.policy.parameters(), lr=args.lr)
+
         else:
             self.alpha = 0
             self.automatic_entropy_tuning = False
@@ -50,7 +60,7 @@ class SAC(object):
             self.policy_optim = Adam(self.policy.parameters(), lr=args.lr)
 
     def select_action(self, state, evaluate=False):
-        if observation_type = "from_state":
+        if observation_type == "from_state":
             state = torch.FloatTensor(state).to(self.device).unsqueeze(0)
         else:
             state = torch.from_numpy(state).to(self.device).unsqueeze(0)
@@ -64,7 +74,7 @@ class SAC(object):
         # Sample a batch from memory
         state_batch, action_batch, reward_batch, next_state_batch, mask_batch = memory.sample(batch_size=batch_size)
 
-        if observation_type = "from_state":
+        if observation_type == "from_state":
             state_batch = torch.FloatTensor(state_batch).to(self.device)
             next_state_batch = torch.FloatTensor(next_state_batch).to(self.device)
         else:

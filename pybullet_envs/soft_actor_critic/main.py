@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser(description='PyTorch Soft Actor-Critic Args')
 parser.add_argument('--env-name', default="HalfCheetah-v2",
                     help='Mujoco Gym environment (default: HalfCheetah-v2)')
 parser.add_argument('--policy', default="Gaussian",
-                    help='Policy Type: Gaussian | Deterministic (default: Gaussian)')
+                    help='Policy Type: Gaussian | Conv_Gaussian | Deterministic (default: Gaussian)')
 parser.add_argument('--observation_type', default="from_state",
                     help='observation Type: from_state | from_pixels (default: from_state)')
 parser.add_argument('--eval', type=bool, default=True,
@@ -59,7 +59,7 @@ torch.manual_seed(args.seed)
 np.random.seed(args.seed)
 
 # Observer
-observer = Observer(env, args)
+observer = Observer(env, frame_count=3, args)
 
 # Agent
 agent = SAC(env.observation_space.shape[0], env.action_space, args)
@@ -80,8 +80,10 @@ for i_episode in itertools.count(1):
     episode_reward = 0
     episode_steps = 0
     done = False
-    #state = env.reset()
-    state = observer.reset()
+    if observation_type == "from_state":
+        state = env.reset()
+    else:
+        state = observer.reset()
 
     while not done:
         if args.start_steps > total_numsteps:
@@ -102,8 +104,10 @@ for i_episode in itertools.count(1):
                 writer.add_scalar('entropy_temprature/alpha', alpha, updates)
                 updates += 1
 
-        #next_state, reward, done, _ = env.step(action) # Step
-        next_state, reward, done, _ = observer.step(action) # Step
+        if observation_type == "from_state":
+            next_state, reward, done, _ = env.step(action) # Step
+        else:
+            next_state, reward, done, _ = observer.step(action) # Step
         episode_steps += 1
         total_numsteps += 1
         episode_reward += reward
@@ -126,15 +130,19 @@ for i_episode in itertools.count(1):
         avg_reward = 0.
         episodes = 10
         for _  in range(episodes):
-            #state = env.reset()
-            state = observer.reset()
+            if observation_type == "from_state":
+                state = env.reset()
+            else:
+                state = observer.reset()
             episode_reward = 0
             done = False
             while not done:
                 action = agent.select_action(state, evaluate=True)
 
-                #next_state, reward, done, _ = env.step(action)
-                next_state, reward, done, _ = observer.step(action)
+                if observation_type == "from_state":
+                    next_state, reward, done, _ = env.step(action)
+                else:
+                    next_state, reward, done, _ = observer.step(action)
                 episode_reward += reward
 
 
