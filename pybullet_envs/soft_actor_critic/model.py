@@ -66,7 +66,7 @@ class QNetwork(nn.Module):
 
 class Conv_QNetwork(nn.Module):
     def __init__(self, h, w, num_inputs, num_actions, hidden_dim):
-        super(QNetwork, self).__init__()
+        super(Conv_QNetwork, self).__init__()
 
         # Q1 Convnet
         self.conv1 = nn.Conv2d(num_inputs, 64, kernel_size=3, stride=2)
@@ -121,7 +121,7 @@ class Conv_QNetwork(nn.Module):
         x1 = F.relu(self.linear2(x1))
         x1 = self.linear3(x1)
 
-        x2 = F.relu(self.linear4(x1))
+        x2 = F.relu(self.linear4(x2))
         x2 = F.relu(self.linear5(x2))
         x2 = self.linear6(x2)
 
@@ -179,7 +179,7 @@ class GaussianPolicy(nn.Module):
 
 class Conv_GaussianPolicy(nn.Module):
     def __init__(self, h, w, num_inputs, num_actions, hidden_dim, action_space=None):
-        super(GaussianPolicy, self).__init__()
+        super(Conv_GaussianPolicy, self).__init__()
 
         self.conv1 = nn.Conv2d(num_inputs, 64, kernel_size=3, stride=2)
         self.bn1 = nn.BatchNorm2d(64)
@@ -243,7 +243,7 @@ class Conv_GaussianPolicy(nn.Module):
     def to(self, device):
         self.action_scale = self.action_scale.to(device)
         self.action_bias = self.action_bias.to(device)
-        return super(GaussianPolicy, self).to(device)
+        return super(Conv_GaussianPolicy, self).to(device)
 
 
 class DeterministicPolicy(nn.Module):

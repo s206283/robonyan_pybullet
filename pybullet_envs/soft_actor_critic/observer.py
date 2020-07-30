@@ -22,12 +22,12 @@ class Observer():
         return self._env.observation_space
 
     def reset(self):
-        if observation_type = "from_state":
+        if self.observation_type == "from_state":
             return self._env.reset()
         else:
             self._env.reset()
-            pixel = self.transform(self._env.render(mode='rgb_array').transpose((2, 0, 1)))
-            for _ in range(self._k):
+            pixel = self.transform(self._env.render(mode='rgb_array'))
+            for _ in range(self.frame_count):
                 self._frames.append(pixel)
             return self._get_obs()
 
@@ -35,11 +35,11 @@ class Observer():
         self.env.render(mode="human")
 
     def step(self, action):
-        state, reward, done, info = sef._env.step(action)
-        if self.observation_type = "from_state":
+        state, reward, done, info = self._env.step(action)
+        if self.observation_type == "from_state":
             return state, reward, done, info
         else:
-            pixel = self.transform(self._env.render('rgb_array').transpose((2, 0, 1)))
+            pixel = self.transform(self._env.render(mode='rgb_array'))
             self._frames.append(pixel)
             return self._get_obs(), reward, done, info
 
@@ -48,9 +48,10 @@ class Observer():
         resize = pixel.resize((32, 32))
         resize = np.array(resize).astype("float")
         normalized = resize / 255.0
+        feature = normalized.transpose((2, 0, 1))
 
-        return normalized
+        return feature
 
     def _get_obs(self):
-        assert len(self._frames) == self._k
+        assert len(self._frames) == self.frame_count
         return np.concatenate(list(self._frames), axis=0)

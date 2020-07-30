@@ -59,7 +59,7 @@ torch.manual_seed(args.seed)
 np.random.seed(args.seed)
 
 # Observer
-observer = Observer(env, frame_count=3, args)
+observer = Observer(env, 3, args)
 
 # Agent
 agent = SAC(env.observation_space.shape[0], env.action_space, args)
@@ -80,7 +80,7 @@ for i_episode in itertools.count(1):
     episode_reward = 0
     episode_steps = 0
     done = False
-    if observation_type == "from_state":
+    if args.observation_type == "from_state":
         state = env.reset()
     else:
         state = observer.reset()
@@ -104,7 +104,7 @@ for i_episode in itertools.count(1):
                 writer.add_scalar('entropy_temprature/alpha', alpha, updates)
                 updates += 1
 
-        if observation_type == "from_state":
+        if args.observation_type == "from_state":
             next_state, reward, done, _ = env.step(action) # Step
         else:
             next_state, reward, done, _ = observer.step(action) # Step
@@ -130,7 +130,7 @@ for i_episode in itertools.count(1):
         avg_reward = 0.
         episodes = 10
         for _  in range(episodes):
-            if observation_type == "from_state":
+            if args.observation_type == "from_state":
                 state = env.reset()
             else:
                 state = observer.reset()
@@ -139,7 +139,7 @@ for i_episode in itertools.count(1):
             while not done:
                 action = agent.select_action(state, evaluate=True)
 
-                if observation_type == "from_state":
+                if args.observation_type == "from_state":
                     next_state, reward, done, _ = env.step(action)
                 else:
                     next_state, reward, done, _ = observer.step(action)
